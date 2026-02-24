@@ -13,7 +13,9 @@ class MockEventSource {
   onerror: ((this: EventSource, ev: Event) => unknown) | null = null;
   onmessage: ((this: EventSource, ev: MessageEvent<string>) => unknown) | null = null;
 
-  constructor(_: string) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor(_url: string) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     currentInstance = this;
   }
 

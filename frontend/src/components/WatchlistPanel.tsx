@@ -68,12 +68,14 @@ export const WatchlistPanel = ({
   const [flashMap, setFlashMap] = useState<Record<string, 'up' | 'down' | 'flat'>>({});
   const columns = buildColumns(watchlist);
 
+  // Flash animation: intentionally sets state in effect to trigger brief color flash on price changes
   useEffect(() => {
     const entries = watchlist
       .filter((item) => item.direction !== 'flat')
       .map((item) => [item.ticker, item.direction] as const);
     if (!entries.length) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- flash animation requires sync setState
     setFlashMap((current) => ({ ...current, ...Object.fromEntries(entries) }));
     const timeout = setTimeout(() => {
       setFlashMap((current) => {
@@ -154,14 +156,15 @@ interface WatchlistRowProps {
   onRemoveTicker: (ticker: string) => void;
 }
 
-const WatchlistRow = memo(({
+const WatchlistRow = memo(function WatchlistRow({
   item,
   series,
   isActive,
   flashClass,
   onSelectTicker,
   onRemoveTicker,
-}: WatchlistRowProps) => (
+}: WatchlistRowProps) {
+  return (
   <div
     role="button"
     tabIndex={0}
@@ -205,7 +208,8 @@ const WatchlistRow = memo(({
       x
     </button>
   </div>
-), (prev, next) => (
+  );
+}, (prev, next) => (
   prev.item === next.item
   && prev.series === next.series
   && prev.isActive === next.isActive
