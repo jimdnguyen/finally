@@ -28,7 +28,7 @@ from .db import (
     now_iso,
 )
 from .llm import generate_chat_response
-from .market import PriceCache, create_market_data_source, create_stream_router
+from .market import PriceCache, create_market_data_source, create_specific_source, create_stream_router, has_massive_api_key
 from .market.seed_prices import SEED_PRICES
 
 logger = logging.getLogger(__name__)
@@ -42,6 +42,10 @@ class TradeRequest(BaseModel):
 
 class WatchlistRequest(BaseModel):
     ticker: str = Field(min_length=1, max_length=10)
+
+
+class MarketSourceRequest(BaseModel):
+    source: Literal["massive", "simulator"]
 
 
 class ChatRequest(BaseModel):
@@ -316,6 +320,55 @@ def create_app() -> FastAPI:
             "db_path": str(get_db_path()),
             "market_source": source_name,
         }
+
+    @app.get("/api/market-source")
+    async def get_market_source() -> dict:
+        source_type = "unknown"
+        if state.market_source is not None:
+            cls = state.market_source.__class__.__name__
+            if "Simulator" in cls:
+                source_type = "simulator"
+            elif "Massive" in cls:
+                source_type = "massive"
+        return {
+            "current_source": source_type,
+            "massive_available": has_massive_api_key(),
+        }
+
+    @app.post("/api/market-source")
+    async def switch_market_source(body: MarketSourceRequest) -> dict:
+        target = body.source
+
+        # No-op if already on the target source
+        current_cls = state.market_source.__class__.__name__ if state.market_source else ""
+        if target == "simulator" and "Simulator" in current_cls:
+            return {"current_source": "simulator", "switched": False}
+        if target == "massive" and "Massive" in current_cls:
+            return {"current_source": "massive", "switched": False}
+
+        # Get current watchlist tickers
+        with get_connection() as conn:
+            tickers = _fetch_watchlist_tickers(conn)
+
+        # Stop current source
+        if state.market_source:
+            await state.market_source.stop()
+
+        # Clear the price cache
+        state.price_cache.clear_all()
+
+        # Create and start new source
+        try:
+            state.market_source = create_specific_source(target, state.price_cache)
+            await state.market_source.start(tickers)
+        except ValueError as e:
+            # Fallback to simulator if massive creation fails
+            from .market.simulator import SimulatorDataSource
+            state.market_source = SimulatorDataSource(price_cache=state.price_cache)
+            await state.market_source.start(tickers)
+            raise HTTPException(status_code=400, detail=str(e))
+
+        return {"current_source": target, "switched": True}
 
     @app.get("/api/watchlist")
     async def get_watchlist() -> dict:

@@ -76,6 +76,12 @@ class PriceCache:
         with self._lock:
             self._prices.pop(ticker, None)
 
+    def clear_all(self) -> None:
+        """Remove all tickers from the cache (e.g., on source switch)."""
+        with self._lock:
+            self._prices.clear()
+            self._version += 1
+
     @property
     def version(self) -> int:
         """Current version counter. Useful for SSE change detection."""

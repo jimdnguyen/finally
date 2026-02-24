@@ -285,3 +285,24 @@ export const sendChat = async (payload: ChatRequest): Promise<ChatResponse> =>
     method: 'POST',
     body: JSON.stringify(payload),
   });
+
+export interface MarketSourceStatus {
+  current_source: 'massive' | 'simulator';
+  massive_available: boolean;
+}
+
+export const fetchMarketSource = async (): Promise<MarketSourceStatus> => {
+  try {
+    return await request<MarketSourceStatus>('/api/market-source');
+  } catch {
+    return { current_source: 'simulator', massive_available: false };
+  }
+};
+
+export const switchMarketSource = async (
+  source: 'massive' | 'simulator',
+): Promise<{ current_source: string; switched: boolean }> =>
+  request('/api/market-source', {
+    method: 'POST',
+    body: JSON.stringify({ source }),
+  });

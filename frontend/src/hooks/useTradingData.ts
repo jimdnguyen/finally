@@ -260,6 +260,10 @@ export const useTradingData = () => {
     [refreshStaticData],
   );
 
+  const clearTickerHistory = useCallback(() => {
+    setTickerHistory({});
+  }, []);
+
   return {
     watchlist,
     selectedTicker,
@@ -277,5 +281,7 @@ export const useTradingData = () => {
     chatMessages,
     isChatLoading,
     submitChat,
+    clearTickerHistory,
+    refreshStaticData,
   };
 };

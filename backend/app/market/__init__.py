@@ -9,7 +9,7 @@ Public API:
 """
 
 from .cache import PriceCache
-from .factory import create_market_data_source
+from .factory import create_market_data_source, create_specific_source, has_massive_api_key
 from .interface import MarketDataSource
 from .models import PriceUpdate
 from .stream import create_stream_router
@@ -19,5 +19,7 @@ __all__ = [
     "PriceCache",
     "MarketDataSource",
     "create_market_data_source",
+    "create_specific_source",
     "create_stream_router",
+    "has_massive_api_key",
 ]

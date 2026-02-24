@@ -32,6 +32,8 @@ export default function HomePage() {
     chatMessages,
     isChatLoading,
     submitChat,
+    clearTickerHistory,
+    refreshStaticData,
   } = useTradingData();
 
   const streamState = useMarketStream({ onPriceBatch });
@@ -47,6 +49,11 @@ export default function HomePage() {
     },
     [trade, showToast],
   );
+
+  const handleSourceSwitch = useCallback(() => {
+    clearTickerHistory();
+    void refreshStaticData();
+  }, [clearTickerHistory, refreshStaticData]);
 
   const safeAddTicker = useCallback(
     async (ticker: string) => {
@@ -65,7 +72,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen overflow-x-clip bg-transparent">
-      <Header totalValue={portfolio.total_value} cash={portfolio.cash_balance} connectionState={streamState} />
+      <Header totalValue={portfolio.total_value} cash={portfolio.cash_balance} connectionState={streamState} onSourceSwitch={handleSourceSwitch} />
 
       <div className="grid w-full grid-cols-1 gap-3 p-3 xl:h-[calc(100vh-98px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)_minmax(240px,280px)]">
         <div className="min-h-0 min-w-0 xl:h-full">
