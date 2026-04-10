@@ -1,14 +1,21 @@
 """FastAPI routes for portfolio endpoints."""
 
 import sqlite3
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends
 from fastapi.concurrency import run_in_threadpool
 
 from app.dependencies import get_db, get_price_cache
 from app.market import PriceCache
-from app.portfolio.models import PortfolioHistoryResponse, PortfolioResponse, PositionDetail
-from app.portfolio.service import get_portfolio_data
+from app.portfolio.models import (
+    PortfolioHistoryResponse,
+    PortfolioResponse,
+    PositionDetail,
+    TradeRequest,
+    TradeResponse,
+)
+from app.portfolio.service import execute_trade, get_portfolio_data
 
 
 def create_portfolio_router() -> APIRouter:
@@ -69,5 +76,46 @@ def create_portfolio_router() -> APIRouter:
 
         snapshots = await run_in_threadpool(_get_history)
         return PortfolioHistoryResponse(snapshots=snapshots)
+
+    @router.post("/trade", response_model=TradeResponse)
+    async def trade(
+        request: TradeRequest,
+        db: sqlite3.Connection = Depends(get_db),
+        cache: PriceCache = Depends(get_price_cache),
+    ) -> TradeResponse:
+        """Execute a market buy or sell order.
+
+        Validates ticker, side, and quantity via Pydantic and service layer.
+        Executes atomically via BEGIN IMMEDIATE transaction.
+        Records trade log entry and portfolio snapshot on success.
+
+        Args:
+            request: TradeRequest with ticker, side, quantity
+            db: SQLite database connection (injected)
+            cache: PriceCache with live prices (injected)
+
+        Returns:
+            TradeResponse with execution details (price, new balance, timestamp)
+
+        Raises:
+            HTTPException 400: Invalid request or trade validation failure
+            HTTPException 500: Database or system error
+        """
+        # Extract and normalize request data
+        ticker_normalized = request.ticker.upper()
+        side_normalized = request.side.lower()
+        quantity_decimal = Decimal(str(request.quantity))
+
+        # Call execute_trade service function
+        result = await execute_trade(
+            db,
+            ticker_normalized,
+            side_normalized,
+            quantity_decimal,
+            cache,
+        )
+
+        # Return TradeResponse (FastAPI will serialize to JSON automatically)
+        return TradeResponse(**result)
 
     return router
