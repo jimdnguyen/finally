@@ -79,17 +79,14 @@ catch {
 
 # Step 5: Build image (unless --no-build and image exists)
 $ImageExists = $false
-try {
-    docker image inspect $ImageName > $null 2>&1
+$InspectResult = docker image inspect $ImageName 2>&1
+if ($LASTEXITCODE -eq 0) {
     $ImageExists = $true
-}
-catch {
-    $ImageExists = $false
 }
 
 if ($Build -or !$ImageExists) {
     Write-Info "Building Docker image $ImageName..."
-    docker build -t $ImageName . | Out-Null
+    docker build -t $ImageName .
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Docker build failed"
         exit 1
