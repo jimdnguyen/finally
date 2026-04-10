@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { usePriceStream } from '@/hooks/usePriceStream'
 import '@/styles/globals.css'
 
 const queryClient = new QueryClient({
@@ -13,6 +14,11 @@ const queryClient = new QueryClient({
   },
 })
 
+function RootLayoutContent({ children }: { children: ReactNode }) {
+  usePriceStream()  // Initialize hook at root
+  return children
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -22,7 +28,7 @@ export default function RootLayout({
     <html className="dark" lang="en">
       <body>
         <QueryClientProvider client={queryClient}>
-          {children}
+          <RootLayoutContent>{children}</RootLayoutContent>
         </QueryClientProvider>
       </body>
     </html>
