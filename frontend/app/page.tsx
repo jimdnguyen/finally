@@ -8,6 +8,7 @@ import { PnLChart } from '@/components/charts/PnLChart'
 import { ConnectionStatus } from '@/components/header/ConnectionStatus'
 import { TradeBar } from '@/components/header/TradeBar'
 import { PositionsTable } from '@/components/charts/PositionsTable'
+import { ChatPanel } from '@/components/chat/ChatPanel'
 
 const DEFAULT_TICKERS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'NVDA', 'META', 'JPM', 'V', 'NFLX']
 
@@ -47,10 +48,8 @@ export default function Page() {
           <PositionsTable />
         </main>
 
-        {/* Chat sidebar (300px) - placeholder */}
-        <aside className="w-[300px] bg-panel border-l border-gray-700 p-4 overflow-auto">
-          <div className="text-gray-400">Chat panel placeholder</div>
-        </aside>
+        {/* Chat sidebar (300px) */}
+        <ChatPanel />
       </div>
     </div>
   )
