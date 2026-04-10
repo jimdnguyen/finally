@@ -71,8 +71,8 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 - DATA-05: Portfolio snapshot background task (every 30s + immediately post-trade)
 
 **Plans:**
-- [ ] 02-01-PLAN.md — Wave 1: Trade execution endpoint (PORT-02)
-- [ ] 02-02-PLAN.md — Wave 2: Portfolio snapshot background task (DATA-05)
+- [x] 02-01-PLAN.md — Wave 1: Trade execution endpoint (PORT-02)
+- [x] 02-02-PLAN.md — Wave 2: Portfolio snapshot background task (DATA-05)
 
 **Success Criteria (what must be TRUE when Phase 2 completes):**
 1. User can buy 10 shares of AAPL; cash decreases by (10 × current_price), position is created
