@@ -30,6 +30,9 @@ RUN uv sync --frozen --no-install-project
 # Stage 3: Runtime (Python 3.12 slim)
 FROM python:3.12-slim
 
+# Install curl for health check
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser
 
