@@ -15,9 +15,9 @@ progress:
 
 # State: FinAlly v1.0
 
-**Last updated:** 2026-04-09  
-**Current phase:** 4
-**Status:** Ready to execute
+**Last updated:** 2026-04-10  
+**Current phase:** 5
+**Status:** Planned — ready to execute
 
 ---
 
@@ -33,23 +33,20 @@ progress:
 
 ## Current Position
 
-Phase: 03 (llm-chat-integration) — EXECUTING
-Plan: Not started
-**Phase:** 1 of 5 (Database & Core API)
+**Phase:** 5 of 5 (Docker & E2E Testing)
 
-**Focus:** Establish SQLite persistence and foundational REST endpoints.
+**Focus:** Package into production Docker container, add pytest suites, Playwright E2E tests, and start/stop scripts.
 
 **Progress:**
 
 ```
-Phase 1: Database & Core API
-████░░░░░░░░░░░░░░░░░░░░░░  0% complete
-  Requirements: 10
-  Plans: TBD (via /gsd-plan-phase 1)
-  Status: Roadmap approved, awaiting planning
+Phases 1–4: Complete  ████████████████████████  100%
+Phase 5:    Planned   ░░░░░░░░░░░░░░░░░░░░░░░░    0%
+  Plans: 4 (05-01 through 05-04), 14 tasks, 3 waves
+  Status: Planned — ready to execute
 ```
 
-**Next Action:** `/gsd-plan-phase 1` to decompose Phase 1 into executable plans.
+**Next Action:** `/gsd-execute-phase 5`
 
 ---
 
