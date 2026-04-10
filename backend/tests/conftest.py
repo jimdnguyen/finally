@@ -26,8 +26,8 @@ def test_db() -> sqlite3.Connection:
     Fresh database per test (function scope). Automatically creates all tables
     and seeds default user + watchlist.
     """
-    # Create in-memory database
-    conn = sqlite3.connect(":memory:")
+    # Create in-memory database with check_same_thread=False for async testing
+    conn = sqlite3.connect(":memory:", check_same_thread=False)
     conn.row_factory = sqlite3.Row
 
     # Enable foreign keys and PRAGMA settings
@@ -62,8 +62,13 @@ def client(test_db: sqlite3.Connection, price_cache: PriceCache) -> TestClient:
 
     Sets up app.state.db and app.state.price_cache for dependency injection.
     """
+    from app.health import create_health_router
+
     app = FastAPI()
     app.state.db = test_db
     app.state.price_cache = price_cache
+
+    # Include health router
+    app.include_router(create_health_router(), prefix="/api")
 
     return TestClient(app)
