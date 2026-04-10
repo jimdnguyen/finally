@@ -151,7 +151,7 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 - [x] 04-03-PLAN.md — Wave 1: Charts (ECharts integration, sparklines, main chart, treemap, P&L) (UI-08, UI-09, UI-10)
 - [x] 04-04-PLAN.md — Wave 1: Trading interface (trade bar, positions table) (UI-11, UI-12)
 - [x] 04-05-PLAN.md — Wave 2: Chat panel with LLM integration (UI-13, UI-14)
-- [ ] 04-06-PLAN.md — Wave 2: Integration + build verification + checkpoint (UI-03, UI-15, UI-16)
+- [x] 04-06-PLAN.md — Wave 2: Integration + build verification + checkpoint (UI-03, UI-15, UI-16)
 
 **Success Criteria (what must be TRUE when Phase 4 completes):**
 1. User opens app and sees watchlist with live streaming prices (green/red flash on change, sparklines fill progressively)
@@ -190,6 +190,12 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 
 **UI hint:** no
 
+**Plans:**
+- [x] 05-01-PLAN.md — Wave 1: Multi-stage Dockerfile + FastAPI static serving (INFRA-01, INFRA-02)
+- [x] 05-02-PLAN.md — Wave 1: Backend pytest suites — trade execution + LLM parsing (TEST-01, TEST-02)
+- [x] 05-03-PLAN.md — Wave 2: E2E Playwright tests + docker-compose.test.yml (TEST-03)
+- [x] 05-04-PLAN.md — Wave 3: Start/stop scripts (shell + PowerShell) (INFRA-04)
+
 **Notes:** Multi-stage Dockerfile assertions: `test -f ./static/index.html` (Next.js output), verify `uv.lock` exists. Start scripts idempotent (safe to run multiple times). E2E tests use `docker-compose.test.yml` with LLM_MOCK=true for determinism.
 
 ---
@@ -206,9 +212,9 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 |-------|----------------|--------|-----------|
 | 1. Database & Core API | 4/4 | Complete | 2026-04-10 |
 | 2. Portfolio Trading | 2/2 | Complete | 2026-04-10 |
-| 3. LLM Chat Integration | 2/2 | Planning complete | 2026-04-10 |
-| 4. Frontend UI | 6/6 | Planning complete | 2026-04-10 |
-| 5. Docker & E2E Testing | 0/? | Not started | — |
+| 3. LLM Chat Integration | 2/2 | Complete | 2026-04-10 |
+| 4. Frontend UI | 6/6 | Complete | 2026-04-10 |
+| 5. Docker & E2E Testing | 4/4 | Complete | 2026-04-10 |
 
 ---
 
