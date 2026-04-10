@@ -102,8 +102,8 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 - CHAT-06: LiteLLM override for OpenRouter structured output detection bug
 
 **Plans:**
-- [ ] 03-01-PLAN.md — Wave 1: Chat models + test scaffolding (CHAT-02, CHAT-04)
-- [ ] 03-02-PLAN.md — Wave 2: Chat service + LLM integration + routes (CHAT-01, CHAT-03, CHAT-05, CHAT-06)
+- [x] 03-01-PLAN.md — Wave 1: Chat models + test scaffolding (CHAT-02, CHAT-04)
+- [x] 03-02-PLAN.md — Wave 2: Chat service + LLM integration + routes (CHAT-01, CHAT-03, CHAT-05, CHAT-06)
 
 **Success Criteria (what must be TRUE when Phase 3 completes):**
 1. User sends "Buy 10 AAPL" to chat; LLM responds with structured JSON, trade executes, position is created
