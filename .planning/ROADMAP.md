@@ -18,7 +18,7 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 | 1 | Database & Core API | SQLite persistence + basic CRUD for portfolio and watchlist | DATA-01–05, PORT-01/03/04, WTCH-01, SYS-01 | 5 |
 | 2 | Portfolio Trading | Trade execution with atomic updates and P&L calculations | PORT-02, DATA-05 | 4 |
 | 3 | LLM Chat Integration | Conversational trading via OpenRouter structured outputs | CHAT-01–06 | 3 |
-| 4 | Frontend UI | Complete Next.js 15 dark-themed terminal interface | UI-01–17, UI-15/16/17 | 5 |
+| 4 | Frontend UI | Complete Next.js 15 dark-themed terminal interface | UI-01–17, WTCH-02/03 | 5 |
 | 5 | Docker & E2E Testing | Multi-stage container, deployment scripts, validated flows | INFRA-01/02/04/05, TEST-01–03 | 4 |
 
 ## Phase Details
@@ -142,6 +142,16 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 - UI-15: SSE EventSource client with auto-reconnect; connection status in header
 - UI-16: All API calls target same-origin `/api/*` (no CORS)
 - UI-17: Zustand store for prices, TanStack Query for portfolio/chat state
+- WTCH-02: Watchlist management via frontend buttons (add/remove)
+- WTCH-03: Watchlist synced with backend via `/api/watchlist` POST/DELETE
+
+**Plans:**
+- [ ] 04-01-PLAN.md — Wave 0: Next.js scaffolding, Tailwind, Zustand, TanStack Query setup (UI-01, UI-02, UI-17)
+- [ ] 04-02-PLAN.md — Wave 1: SSE + Watchlist components (UI-04, UI-05, UI-06, UI-07, WTCH-02, WTCH-03)
+- [ ] 04-03-PLAN.md — Wave 1: Charts (ECharts integration, sparklines, main chart, treemap, P&L) (UI-08, UI-09, UI-10)
+- [ ] 04-04-PLAN.md — Wave 1: Trading interface (trade bar, positions table) (UI-11, UI-12)
+- [ ] 04-05-PLAN.md — Wave 2: Chat panel with LLM integration (UI-13, UI-14)
+- [ ] 04-06-PLAN.md — Wave 2: Integration + build verification + checkpoint (UI-03, UI-15, UI-16)
 
 **Success Criteria (what must be TRUE when Phase 4 completes):**
 1. User opens app and sees watchlist with live streaming prices (green/red flash on change, sparklines fill progressively)
@@ -196,8 +206,8 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 |-------|----------------|--------|-----------|
 | 1. Database & Core API | 4/4 | Complete | 2026-04-10 |
 | 2. Portfolio Trading | 2/2 | Complete | 2026-04-10 |
-| 3. LLM Chat Integration | 2/2 | Planning complete | — |
-| 4. Frontend UI | 0/? | Not started | — |
+| 3. LLM Chat Integration | 2/2 | Planning complete | 2026-04-10 |
+| 4. Frontend UI | 6/6 | Planning complete | 2026-04-10 |
 | 5. Docker & E2E Testing | 0/? | Not started | — |
 
 ---
