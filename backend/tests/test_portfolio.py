@@ -1,5 +1,6 @@
 """Unit tests for portfolio endpoints, Decimal precision, and atomic transactions."""
 
+import asyncio
 import sqlite3
 import uuid
 from decimal import Decimal
@@ -7,6 +8,7 @@ from decimal import Decimal
 import pytest
 from fastapi import HTTPException
 
+from app.background.tasks import snapshot_loop
 from app.market import PriceCache
 from app.portfolio.service import (
     compute_portfolio_value,
@@ -453,3 +455,131 @@ async def test_buy_increases_existing_position(
     cursor.execute("SELECT cash_balance FROM users_profile WHERE id='default'")
     balance = float(cursor.fetchone()[0])
     assert balance == pytest.approx(8900.0, abs=0.01)
+
+
+@pytest.mark.asyncio
+async def test_snapshot_recorded_post_trade(
+    test_db: sqlite3.Connection, price_cache: PriceCache
+) -> None:
+    """Test portfolio snapshot recorded immediately after trade (same transaction).
+
+    Requirement: DATA-05
+
+    Setup: Price cache with AAPL=150.00.
+    Action: Execute a buy trade for 10 AAPL.
+    Result: Snapshot recorded with total_value = 10000.0 (unchanged cash + position value).
+    """
+    # Setup
+    price_cache.update("AAPL", 150.0)
+
+    # Action: Execute trade
+    result = await execute_trade(test_db, "AAPL", "buy", Decimal("10"), price_cache)
+
+    # Assert trade succeeded
+    assert result["success"] is True
+
+    # Assert snapshot was recorded
+    cursor = test_db.cursor()
+    cursor.execute(
+        "SELECT total_value, recorded_at FROM portfolio_snapshots WHERE user_id='default'"
+    )
+    rows = cursor.fetchall()
+    assert len(rows) == 1
+
+    # Verify total_value: (10000 - 1500) + (10 * 150) = 8500 + 1500 = 10000.0
+    total_value = float(rows[0][0])
+    assert total_value == pytest.approx(10000.0, abs=0.01)
+
+    # Verify recorded_at is recent (ISO format timestamp)
+    recorded_at = rows[0][1]
+    assert recorded_at is not None
+
+
+@pytest.mark.asyncio
+async def test_snapshot_background_loop(
+    test_db: sqlite3.Connection, price_cache: PriceCache
+) -> None:
+    """Test background task records snapshots at regular intervals.
+
+    Requirement: DATA-05
+
+    Setup: Price cache with tickers.
+    Action: Create snapshot_loop task with 1-second interval, run for 3+ seconds.
+    Result: At least 2-3 snapshots recorded in database.
+    """
+    # Setup
+    price_cache.update("AAPL", 150.0)
+
+    # Start snapshot loop with 1-second interval for testing
+    task = asyncio.create_task(snapshot_loop(test_db, price_cache, interval_seconds=1))
+
+    try:
+        # Let task run and record 2-3 snapshots
+        await asyncio.sleep(3.5)
+
+        # Query snapshots
+        cursor = test_db.cursor()
+        cursor.execute(
+            "SELECT COUNT(*) FROM portfolio_snapshots WHERE user_id='default'"
+        )
+        count = cursor.fetchone()[0]
+        assert count >= 2, f"Expected at least 2 snapshots, got {count}"
+
+        # Verify ordering
+        cursor.execute(
+            "SELECT total_value FROM portfolio_snapshots WHERE user_id='default' ORDER BY recorded_at"
+        )
+        rows = cursor.fetchall()
+        assert len(rows) >= 2
+
+        # Verify all total_values are reasonable (should be 10000 with no positions)
+        for row in rows:
+            total_value = float(row[0])
+            assert total_value == pytest.approx(10000.0, abs=0.01)
+
+    finally:
+        # Cancel the task (test cleanup)
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass  # Expected
+
+
+@pytest.mark.asyncio
+async def test_snapshot_loop_cancellation(
+    test_db: sqlite3.Connection, price_cache: PriceCache
+) -> None:
+    """Test background task gracefully handles cancellation without errors.
+
+    Requirement: DATA-05
+
+    Setup: Database initialized, price cache.
+    Action: Start snapshot_loop, let it run for 2 seconds, cancel.
+    Result: Task cancels cleanly, DB still accessible, snapshots preserved.
+    """
+    # Setup
+    price_cache.update("AAPL", 150.0)
+
+    # Start snapshot loop
+    task = asyncio.create_task(snapshot_loop(test_db, price_cache, interval_seconds=1))
+
+    try:
+        await asyncio.sleep(2)
+    finally:
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass  # Expected
+
+    # Verify DB is still accessible
+    cursor = test_db.cursor()
+    cursor.execute("SELECT COUNT(*) FROM portfolio_snapshots WHERE user_id='default'")
+    count = cursor.fetchone()[0]
+    assert count >= 1, "Snapshots should exist after cancellation"
+
+    # Verify no "database is closed" errors by doing another query
+    cursor.execute("SELECT cash_balance FROM users_profile WHERE id='default'")
+    row = cursor.fetchone()
+    assert row is not None

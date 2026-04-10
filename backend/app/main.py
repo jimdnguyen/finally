@@ -4,12 +4,14 @@ Wires all routers, manages application lifespan (DB init, market data source),
 and exposes the ASGI app for uvicorn.
 """
 
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
+from app.background.tasks import snapshot_loop
 from app.db import init_db
 from app.health import create_health_router
 from app.market import PriceCache, create_market_data_source, create_stream_router
@@ -29,8 +31,9 @@ _price_cache = PriceCache()
 async def lifespan(app: FastAPI):
     """Manage application startup and shutdown.
 
-    Startup: initializes SQLite DB, starts market data source with default tickers.
-    Shutdown: stops market data source and closes DB.
+    Startup: initializes SQLite DB, starts market data source with default tickers,
+    and spawns portfolio snapshot background task.
+    Shutdown: cancels snapshot task, stops market data source, and closes DB.
     """
     db = init_db()
     app.state.db = db
@@ -44,7 +47,22 @@ async def lifespan(app: FastAPI):
     await source.start(tickers)
     logger.info("Market data source started with %d tickers", len(tickers))
 
+    # Spawn background task for portfolio snapshots
+    snapshot_task = asyncio.create_task(
+        snapshot_loop(db, _price_cache, interval_seconds=30),
+        name="portfolio-snapshot-loop"
+    )
+    app.state.snapshot_task = snapshot_task
+    logger.info("Portfolio snapshot loop started (interval: 30s)")
+
     yield
+
+    logger.info("Cancelling portfolio snapshot loop...")
+    snapshot_task.cancel()
+    try:
+        await snapshot_task
+    except asyncio.CancelledError:
+        pass  # Expected; snapshot_loop re-raises after logging
 
     await source.stop()
     db.close()
