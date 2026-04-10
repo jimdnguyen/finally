@@ -696,22 +696,11 @@ volumes:
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Cloud Deployment (INFRA-05 — Stretch Goal)**
-   - What we know: Infrastructure-as-code templates (Terraform for AWS App Runner, CloudFormation for similar) exist and are mature
-   - What's unclear: Whether this phase has capacity for INFRA-05 or if it defers to v1.1
-   - Recommendation: Include in Wave 1 plan; defer implementation if time is tight
-
-2. **E2E Test Data Isolation**
-   - What we know: `docker-compose.test.yml` uses ephemeral `tmpfs` volume or creates fresh database per test run
-   - What's unclear: How to reset database between test cases (fresh seed data each time, or state management)
-   - Recommendation: Use docker-compose down/up between test suites; within suite, use fixtures to reset state
-
-3. **Performance Targets (Portfolio Snapshot, SSE Cadence)**
-   - What we know: Portfolio snapshots every 30s, SSE pushes ~500ms
-   - What's unclear: If Phase 5 includes performance regression tests or just functional tests
-   - Recommendation: Functional tests only in Phase 5; performance benchmarking deferred to v1.1
+1. **Cloud Deployment (INFRA-05 — Stretch Goal)** — RESOLVED: Deferred to v1.1; not in any Wave 1-3 plan
+2. **E2E Test Data Isolation** — RESOLVED: Plan 03 Task 2 uses ephemeral test-db volume in docker-compose.test.yml; fixtures reset state within suite
+3. **Performance Targets** — RESOLVED: Phase 5 covers functional tests only; performance benchmarking deferred to v1.1
 
 ---
 
