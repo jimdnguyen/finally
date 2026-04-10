@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from app.background.tasks import snapshot_loop
+from app.chat import create_chat_router
 from app.db import init_db
 from app.health import create_health_router
 from app.market import PriceCache, create_market_data_source, create_stream_router
@@ -74,9 +75,10 @@ app = FastAPI(title="FinAlly", lifespan=lifespan)
 # Stream router has its own /api/stream prefix baked in
 app.include_router(create_stream_router(_price_cache))
 
-# Portfolio and watchlist routers have their own /api/* prefixes
+# Portfolio, watchlist, and chat routers have their own /api/* prefixes
 app.include_router(create_portfolio_router())
 app.include_router(create_watchlist_router())
+app.include_router(create_chat_router())
 
 # Health router has prefix=/health; mount under /api to produce /api/health
 app.include_router(create_health_router(), prefix="/api")
