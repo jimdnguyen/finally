@@ -6,6 +6,8 @@ import { MainChart } from '@/components/charts/MainChart'
 import { Treemap } from '@/components/charts/Treemap'
 import { PnLChart } from '@/components/charts/PnLChart'
 import { ConnectionStatus } from '@/components/header/ConnectionStatus'
+import { TradeBar } from '@/components/header/TradeBar'
+import { PositionsTable } from '@/components/charts/PositionsTable'
 
 const DEFAULT_TICKERS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'NVDA', 'META', 'JPM', 'V', 'NFLX']
 
@@ -17,6 +19,7 @@ export default function Page() {
       {/* Header */}
       <header className="h-16 bg-panel border-b border-gray-700 px-4 flex items-center justify-between">
         <div className="text-xl font-bold text-accent-yellow">FinAlly</div>
+        <TradeBar selectedTicker={selectedTicker} />
         <ConnectionStatus />
       </header>
 
@@ -40,10 +43,8 @@ export default function Page() {
               <PnLChart />
             </div>
           </div>
-          {/* Positions table placeholder */}
-          <div className="bg-panel rounded border border-gray-700 p-4 text-gray-400 h-40">
-            Positions table placeholder
-          </div>
+          {/* Positions table */}
+          <PositionsTable />
         </main>
 
         {/* Chat sidebar (300px) - placeholder */}
