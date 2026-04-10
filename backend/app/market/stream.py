@@ -14,14 +14,13 @@ from .cache import PriceCache
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/stream", tags=["streaming"])
+def create_stream_router() -> APIRouter:
+    """Create the SSE streaming router.
 
-
-def create_stream_router(price_cache: PriceCache) -> APIRouter:
-    """Create the SSE streaming router with a reference to the price cache.
-
-    This factory pattern lets us inject the PriceCache without globals.
+    The price cache is resolved from app.state at request time, so it always
+    uses the live cache initialized during lifespan startup.
     """
+    router = APIRouter(prefix="/api/stream", tags=["streaming"])
 
     @router.get("/prices")
     async def stream_prices(request: Request) -> StreamingResponse:
@@ -35,6 +34,7 @@ def create_stream_router(price_cache: PriceCache) -> APIRouter:
         Includes a retry directive so the browser auto-reconnects on
         disconnection (EventSource built-in behavior).
         """
+        price_cache: PriceCache = request.app.state.price_cache
         return StreamingResponse(
             _generate_events(price_cache, request),
             media_type="text/event-stream",
