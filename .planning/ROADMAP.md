@@ -16,7 +16,7 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|-----------------|
 | 1 | Database & Core API | SQLite persistence + basic CRUD for portfolio and watchlist | DATA-01–05, PORT-01/03/04, WTCH-01, SYS-01 | 5 |
-| 2 | Portfolio Trading | Trade execution with atomic updates and P&L calculations | PORT-02 | 4 |
+| 2 | Portfolio Trading | Trade execution with atomic updates and P&L calculations | PORT-02, DATA-05 | 4 |
 | 3 | LLM Chat Integration | Conversational trading via OpenRouter structured outputs | CHAT-01–06 | 3 |
 | 4 | Frontend UI | Complete Next.js 15 dark-themed terminal interface | UI-01–17, UI-15/16/17 | 5 |
 | 5 | Docker & E2E Testing | Multi-stage container, deployment scripts, validated flows | INFRA-01/02/04/05, TEST-01–03 | 4 |
@@ -69,6 +69,10 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 **Requirements:**
 - PORT-02: `POST /api/portfolio/trade` with buy/sell validation, atomic execution, trade log
 - DATA-05: Portfolio snapshot background task (every 30s + immediately post-trade)
+
+**Plans:**
+- [ ] 02-01-PLAN.md — Wave 1: Trade execution endpoint (PORT-02)
+- [ ] 02-02-PLAN.md — Wave 2: Portfolio snapshot background task (DATA-05)
 
 **Success Criteria (what must be TRUE when Phase 2 completes):**
 1. User can buy 10 shares of AAPL; cash decreases by (10 × current_price), position is created
@@ -187,12 +191,12 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Database & Core API | 4/4 | Complete | 2026-04-10 |
-| 2. Portfolio Trading | 0/? | Not started | — |
+| 2. Portfolio Trading | 2/2 | Planning complete | — |
 | 3. LLM Chat Integration | 0/? | Not started | — |
 | 4. Frontend UI | 0/? | Not started | — |
 | 5. Docker & E2E Testing | 0/? | Not started | — |
 
 ---
 
-**Roadmap updated: 2026-04-09**  
+**Roadmap updated: 2026-04-10**  
 **Coverage: 43/43 pending requirements mapped | 5/5 pre-existing validated**
