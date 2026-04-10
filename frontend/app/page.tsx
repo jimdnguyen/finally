@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { usePriceStore } from '@/store/priceStore'
 import { usePortfolio } from '@/hooks/usePortfolio'
+import { useWatchlist } from '@/hooks/useWatchlist'
 import { WatchlistPanel } from '@/components/watchlist/WatchlistPanel'
 import { MainChart } from '@/components/charts/MainChart'
 import { Treemap } from '@/components/charts/Treemap'
@@ -12,15 +12,17 @@ import { TradeBar } from '@/components/header/TradeBar'
 import { ConnectionStatus } from '@/components/header/ConnectionStatus'
 import { ChatPanel } from '@/components/chat/ChatPanel'
 
+const DEFAULT_TICKERS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'NVDA', 'META', 'JPM', 'V', 'NFLX']
+
 export default function Page() {
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null)
   const { data: portfolio } = usePortfolio()
+  const { data: watchlist } = useWatchlist()
 
-  // Default to first available price if nothing selected
-  const prices = usePriceStore((s) => s.prices)
-  const defaultTicker =
-    selectedTicker || Object.keys(prices)[0] || 'AAPL'
-  const displayTicker = selectedTicker || defaultTicker
+  const tickers = watchlist && watchlist.length > 0
+    ? watchlist.map((w) => w.ticker)
+    : DEFAULT_TICKERS
+  const displayTicker = selectedTicker || tickers[0] || 'AAPL'
 
   return (
     <main className="flex flex-col h-screen w-screen bg-base text-white">
@@ -48,30 +50,30 @@ export default function Page() {
       </header>
 
       {/* Main content grid */}
-      <div className="flex-1 overflow-hidden grid grid-cols-3 gap-6 p-6">
-        {/* Left: Watchlist (220px fixed) */}
-        <div className="col-span-1 overflow-hidden">
+      <div className="flex-1 min-h-0 grid grid-cols-4 gap-6 p-6 overflow-hidden">
+        {/* Left: Watchlist */}
+        <div className="col-span-1 min-h-0 flex flex-col">
           <WatchlistPanel
-            tickers={Object.keys(prices).length > 0 ? Object.keys(prices) : ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'NVDA', 'META', 'JPM', 'V', 'NFLX']}
+            tickers={tickers}
             onTickerClick={setSelectedTicker}
           />
         </div>
 
         {/* Center: Charts (2 columns) */}
-        <div className="col-span-2 flex flex-col gap-6">
+        <div className="col-span-2 flex flex-col gap-6 min-h-0">
           {/* Main Chart */}
-          <div className="flex-1 bg-panel rounded border border-gray-700 p-4 overflow-hidden">
-            <h2 className="text-sm font-semibold text-gray-100 mb-4">
+          <div className="flex-1 min-h-0 bg-panel rounded border border-gray-700 p-4 overflow-hidden">
+            <h2 className="text-sm font-semibold text-gray-100 mb-2">
               {displayTicker} Price Action
             </h2>
             <MainChart ticker={displayTicker} />
           </div>
 
-          {/* Portfolio charts row */}
-          <div className="grid grid-cols-2 gap-6">
+          {/* Portfolio charts row — fixed height */}
+          <div className="flex-shrink-0 h-[220px] grid grid-cols-2 gap-6">
             {/* Treemap */}
             <div className="bg-panel rounded border border-gray-700 p-4 overflow-hidden">
-              <h2 className="text-sm font-semibold text-gray-100 mb-4">
+              <h2 className="text-sm font-semibold text-gray-100 mb-2">
                 Portfolio Allocation
               </h2>
               <Treemap />
@@ -79,7 +81,7 @@ export default function Page() {
 
             {/* P&L Chart */}
             <div className="bg-panel rounded border border-gray-700 p-4 overflow-hidden">
-              <h2 className="text-sm font-semibold text-gray-100 mb-4">
+              <h2 className="text-sm font-semibold text-gray-100 mb-2">
                 P&L History
               </h2>
               <PnLChart />
@@ -88,9 +90,9 @@ export default function Page() {
         </div>
 
         {/* Right: Positions & Chat */}
-        <div className="col-span-1 flex flex-col gap-6 overflow-hidden">
+        <div className="col-span-1 flex flex-col gap-6 min-h-0">
           {/* Positions table */}
-          <div className="flex-1 bg-panel rounded border border-gray-700 p-4 overflow-auto">
+          <div className="flex-1 min-h-0 bg-panel rounded border border-gray-700 p-4 overflow-auto">
             <h2 className="text-sm font-semibold text-gray-100 mb-4">
               Positions
             </h2>
@@ -98,7 +100,7 @@ export default function Page() {
           </div>
 
           {/* Chat panel */}
-          <div className="h-80 bg-panel rounded border border-gray-700 overflow-hidden">
+          <div className="flex-shrink-0 h-72 bg-panel rounded border border-gray-700 overflow-hidden">
             <ChatPanel />
           </div>
         </div>

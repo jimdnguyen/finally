@@ -24,8 +24,35 @@ export function useChatMutation() {
       if (!res.ok) throw new Error('Chat request failed')
       return (await res.json()) as ChatResponse
     },
-    onSuccess: () => {
-      // Invalidate chat history to refetch (backend appends new message)
+    onMutate: async (request: ChatRequest) => {
+      // Cancel any in-flight refetches so they don't overwrite optimistic update
+      await queryClient.cancelQueries({ queryKey: ['chat', 'messages'] })
+
+      // Snapshot current messages for rollback on error
+      const previous = queryClient.getQueryData<ChatMessage[]>(['chat', 'messages'])
+
+      // Optimistically append the user's message immediately
+      const optimisticMessage: ChatMessage = {
+        id: `optimistic-${Date.now()}`,
+        role: 'user',
+        content: request.message,
+        created_at: new Date().toISOString(),
+      }
+      queryClient.setQueryData<ChatMessage[]>(['chat', 'messages'], (old = []) => [
+        ...old,
+        optimisticMessage,
+      ])
+
+      return { previous }
+    },
+    onError: (_err, _req, context) => {
+      // Roll back optimistic update on failure
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(['chat', 'messages'], context.previous)
+      }
+    },
+    onSettled: () => {
+      // Always refetch to get real messages (replaces optimistic entry + adds assistant reply)
       queryClient.invalidateQueries({ queryKey: ['chat', 'messages'] })
       // Invalidate portfolio in case trades were executed
       queryClient.invalidateQueries({ queryKey: ['portfolio'] })

@@ -13,6 +13,7 @@ export interface PriceUpdate {
 interface PriceState {
   prices: Record<string, PriceUpdate>
   history: Record<string, number[]>
+  timestamps: Record<string, string[]>
   status: 'connecting' | 'live' | 'reconnecting'
   setPrice: (ticker: string, update: PriceUpdate) => void
   setStatus: (status: PriceState['status']) => void
@@ -21,6 +22,7 @@ interface PriceState {
 export const usePriceStore = create<PriceState>((set) => ({
   prices: {},
   history: {},
+  timestamps: {},
   status: 'connecting',
   setPrice: (ticker, update) =>
     set((state) => ({
@@ -28,6 +30,10 @@ export const usePriceStore = create<PriceState>((set) => ({
       history: {
         ...state.history,
         [ticker]: [...(state.history[ticker] || []), update.price].slice(-60),
+      },
+      timestamps: {
+        ...state.timestamps,
+        [ticker]: [...(state.timestamps[ticker] || []), update.timestamp].slice(-60),
       },
     })),
   setStatus: (status) => set({ status }),

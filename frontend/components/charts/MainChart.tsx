@@ -8,36 +8,43 @@ interface MainChartProps {
   isLoading?: boolean
 }
 
-export function MainChart({ ticker, isLoading = false }: MainChartProps) {
-  const history = usePriceStore((s) => s.history[ticker] || [])
-  const price = usePriceStore((s) => s.prices[ticker])
+const EMPTY_HISTORY: number[] = []
+const EMPTY_TIMESTAMPS: string[] = []
 
+export function MainChart({ ticker, isLoading = false }: MainChartProps) {
+  const history = usePriceStore((s) => s.history[ticker] ?? EMPTY_HISTORY)
+  const timestamps = usePriceStore((s) => s.timestamps[ticker] ?? EMPTY_TIMESTAMPS)
   const option = {
-    title: {
-      text: `${ticker} Price Chart`,
-      textStyle: { color: '#ffffff' },
-    },
+    backgroundColor: 'transparent',
     tooltip: {
       trigger: 'axis',
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
       textStyle: { color: '#ffffff' },
       borderColor: '#444',
+      formatter: (params: any) => {
+        if (!params?.length) return ''
+        const ts = timestamps[params[0].dataIndex]
+        const time = ts ? new Date(ts).toLocaleTimeString() : ''
+        return `${time}<br/>$${Number(params[0].value).toFixed(2)}`
+      },
     },
     grid: {
-      left: '10%',
-      right: '10%',
-      top: '15%',
-      bottom: '10%',
+      left: '8%',
+      right: '4%',
+      top: '8%',
+      bottom: '12%',
       containLabel: true,
     },
     xAxis: {
       type: 'category',
-      data: history.map((_, i) => i),  // Index-based x-axis
+      data: timestamps.map((ts) => new Date(ts).toLocaleTimeString()),
       axisLine: { lineStyle: { color: '#444' } },
-      axisLabel: { color: '#888' },
+      axisLabel: { color: '#888', fontSize: 10, interval: 'auto' },
+      boundaryGap: false,
     },
     yAxis: {
       type: 'value',
+      scale: true,  // auto-range instead of forcing 0 baseline
       axisLine: { lineStyle: { color: '#444' } },
       axisLabel: { color: '#888' },
       splitLine: { lineStyle: { color: '#333' } },
@@ -61,7 +68,7 @@ export function MainChart({ ticker, isLoading = false }: MainChartProps) {
   }
 
   return (
-    <div className="w-full h-[300px] bg-panel rounded border border-gray-700">
+    <div className="w-full h-full">
       {isLoading ? (
         <div className="flex items-center justify-center h-full text-gray-400">Loading...</div>
       ) : history.length === 0 ? (
@@ -69,7 +76,7 @@ export function MainChart({ ticker, isLoading = false }: MainChartProps) {
           No price history yet
         </div>
       ) : (
-        <ReactECharts option={option} style={{ height: '100%' }} />
+        <ReactECharts option={option} style={{ height: '100%' }} theme="dark" />
       )}
     </div>
   )

@@ -8,7 +8,7 @@ import sqlite3
 
 from fastapi import Request
 
-from app.market import PriceCache
+from app.market import MarketDataSource, PriceCache
 
 
 async def get_db(request: Request) -> sqlite3.Connection:
@@ -25,3 +25,11 @@ async def get_price_cache(request: Request) -> PriceCache:
     Used as a FastAPI dependency: Depends(get_price_cache)
     """
     return request.app.state.price_cache
+
+
+async def get_market_source(request: Request) -> MarketDataSource:
+    """Get the market data source from app state.
+
+    Used as a FastAPI dependency: Depends(get_market_source)
+    """
+    return request.app.state.market_source

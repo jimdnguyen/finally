@@ -8,7 +8,8 @@ export function usePriceStream() {
 
   useEffect(() => {
     setStatus('connecting')
-    const eventSource = new EventSource('/api/stream/prices')
+    const base = process.env.NEXT_PUBLIC_API_URL ?? ''
+    const eventSource = new EventSource(`${base}/api/stream/prices`)
 
     eventSource.onopen = () => {
       setStatus('live')
@@ -21,10 +22,12 @@ export function usePriceStream() {
 
     eventSource.onmessage = (event) => {
       try {
-        const update = JSON.parse(event.data)
-        // Validate update has required fields before setting (XSS prevention)
-        if (update.ticker && typeof update.price === 'number') {
-          setPrice(update.ticker, update)
+        const batch = JSON.parse(event.data)
+        // Payload is { AAPL: PriceUpdate, GOOGL: PriceUpdate, ... }
+        for (const update of Object.values(batch) as any[]) {
+          if (update.ticker && typeof update.price === 'number') {
+            setPrice(update.ticker, update)
+          }
         }
       } catch (e) {
         console.error('Failed to parse price update:', e)

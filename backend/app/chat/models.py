@@ -69,6 +69,16 @@ class ChatResponse(BaseModel):
     )
 
 
+class ChatHistoryMessage(BaseModel):
+    """Single chat message returned by GET /api/chat/history."""
+
+    id: str
+    role: Literal["user", "assistant"]
+    content: str
+    actions: dict | None = None
+    created_at: str
+
+
 class ChatAPIResponse(ChatResponse):
     """API response for POST /api/chat.
 

@@ -25,7 +25,8 @@ export function usePortfolio() {
       if (!res.ok) throw new Error(`Portfolio fetch failed: ${res.status}`)
       return res.json() as Promise<PortfolioResponse>
     },
-    staleTime: 30 * 1000,
+    refetchInterval: 5 * 1000,
+    staleTime: 0,
     gcTime: 5 * 60 * 1000,
     retry: 1,
   })

@@ -146,11 +146,11 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 - WTCH-03: Watchlist synced with backend via `/api/watchlist` POST/DELETE
 
 **Plans:**
-- [ ] 04-01-PLAN.md — Wave 0: Next.js scaffolding, Tailwind, Zustand, TanStack Query setup (UI-01, UI-02, UI-17)
-- [ ] 04-02-PLAN.md — Wave 1: SSE + Watchlist components (UI-04, UI-05, UI-06, UI-07, WTCH-02, WTCH-03)
-- [ ] 04-03-PLAN.md — Wave 1: Charts (ECharts integration, sparklines, main chart, treemap, P&L) (UI-08, UI-09, UI-10)
-- [ ] 04-04-PLAN.md — Wave 1: Trading interface (trade bar, positions table) (UI-11, UI-12)
-- [ ] 04-05-PLAN.md — Wave 2: Chat panel with LLM integration (UI-13, UI-14)
+- [x] 04-01-PLAN.md — Wave 0: Next.js scaffolding, Tailwind, Zustand, TanStack Query setup (UI-01, UI-02, UI-17)
+- [x] 04-02-PLAN.md — Wave 1: SSE + Watchlist components (UI-04, UI-05, UI-06, UI-07, WTCH-02, WTCH-03)
+- [x] 04-03-PLAN.md — Wave 1: Charts (ECharts integration, sparklines, main chart, treemap, P&L) (UI-08, UI-09, UI-10)
+- [x] 04-04-PLAN.md — Wave 1: Trading interface (trade bar, positions table) (UI-11, UI-12)
+- [x] 04-05-PLAN.md — Wave 2: Chat panel with LLM integration (UI-13, UI-14)
 - [ ] 04-06-PLAN.md — Wave 2: Integration + build verification + checkpoint (UI-03, UI-15, UI-16)
 
 **Success Criteria (what must be TRUE when Phase 4 completes):**

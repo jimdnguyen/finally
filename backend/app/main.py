@@ -10,6 +10,7 @@ from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.background.tasks import snapshot_loop
 from app.chat import create_chat_router
@@ -44,7 +45,14 @@ async def lifespan(app: FastAPI):
     source = create_market_data_source(_price_cache)
     app.state.market_source = source
 
-    tickers = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA", "NVDA", "META", "JPM", "V", "NFLX"]
+    default_tickers = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA", "NVDA", "META", "JPM", "V", "NFLX"]
+
+    # Also subscribe any extra tickers persisted in the watchlist DB (e.g. added by AI)
+    cursor = db.cursor()
+    cursor.execute("SELECT DISTINCT ticker FROM watchlist WHERE user_id='default'")
+    db_tickers = {row[0] for row in cursor.fetchall()}
+    tickers = list(dict.fromkeys(default_tickers + [t for t in db_tickers if t not in default_tickers]))
+
     await source.start(tickers)
     logger.info("Market data source started with %d tickers", len(tickers))
 
@@ -71,6 +79,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="FinAlly", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Stream router has its own /api/stream prefix baked in
 app.include_router(create_stream_router(_price_cache))

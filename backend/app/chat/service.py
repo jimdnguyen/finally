@@ -20,7 +20,7 @@ from fastapi.concurrency import run_in_threadpool
 from pydantic import ValidationError
 
 from app.chat.models import ChatResponse, TradeAction, WatchlistAction
-from app.market import PriceCache
+from app.market import MarketDataSource, PriceCache
 from app.portfolio.service import execute_trade, get_portfolio_data
 
 
@@ -123,7 +123,7 @@ def load_conversation_history(cursor: sqlite3.Cursor, limit: int = 10) -> list[d
     return history
 
 
-def call_llm_structured(
+async def call_llm_structured(
     system_prompt: str, messages: list[dict], schema: type
 ) -> ChatResponse:
     """Call OpenRouter LLM via LiteLLM with structured output.
@@ -165,8 +165,8 @@ def call_llm_structured(
         "extra_body": {"provider": {"order": ["cerebras"]}},
     }
 
-    # Call LiteLLM completion
-    response = litellm.completion(**call_kwargs)
+    # Call LiteLLM async completion — never block the event loop
+    response = await litellm.acompletion(**call_kwargs)
 
     # Extract JSON from response
     result_json = response.choices[0].message.content or ""
@@ -217,7 +217,10 @@ def save_chat_message(
 
 
 async def execute_llm_actions(
-    db: sqlite3.Connection, llm_response: ChatResponse, price_cache: PriceCache
+    db: sqlite3.Connection,
+    llm_response: ChatResponse,
+    price_cache: PriceCache,
+    market_source: MarketDataSource,
 ) -> dict:
     """Execute trades and watchlist changes from LLM response with continue-and-report pattern.
 
@@ -262,6 +265,8 @@ async def execute_llm_actions(
         try:
             if change.action == "add":
                 result = add_watchlist_ticker(db, change.ticker)
+                # Subscribe the new ticker to the market data source so it gets prices
+                await market_source.add_ticker(change.ticker.upper())
             elif change.action == "remove":
                 result = remove_watchlist_ticker(db, change.ticker)
             else:
@@ -293,7 +298,7 @@ def execute_chat_mock() -> ChatResponse:
 
 
 async def execute_chat(
-    db: sqlite3.Connection, user_message: str, price_cache: PriceCache
+    db: sqlite3.Connection, user_message: str, price_cache: PriceCache, market_source: MarketDataSource
 ) -> dict:
     """Execute full chat request: context injection, LLM call, auto-execution, persistence.
 
@@ -359,7 +364,7 @@ Always respond with valid JSON matching this structure:
 
         # Call LLM with structured output (this sets the CHAT-06 flag)
         try:
-            llm_response = call_llm_structured(system_prompt, full_messages, ChatResponse)
+            llm_response = await call_llm_structured(system_prompt, full_messages, ChatResponse)
         except ValidationError as e:
             error_msg = f"LLM response validation failed: {str(e)}"
             return {
@@ -384,7 +389,7 @@ Always respond with valid JSON matching this structure:
             }
 
         # Auto-execute trades and watchlist changes (async)
-        executed_actions = await execute_llm_actions(db, llm_response, price_cache)
+        executed_actions = await execute_llm_actions(db, llm_response, price_cache, market_source)
 
         # Persist user message and assistant response
         save_chat_message(cursor, "user", user_message)

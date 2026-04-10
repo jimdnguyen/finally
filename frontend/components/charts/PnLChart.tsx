@@ -7,29 +7,17 @@ export function PnLChart() {
   const { data: history, isLoading, error } = usePortfolioHistory()
 
   if (isLoading) {
-    return (
-      <div className="w-full h-full bg-panel rounded border border-gray-700 flex items-center justify-center text-gray-400">
-        Loading...
-      </div>
-    )
+    return <div className="flex items-center justify-center h-full text-gray-400">Loading...</div>
   }
 
   if (error || !history) {
-    return (
-      <div className="w-full h-full bg-panel rounded border border-gray-700 flex items-center justify-center text-red-down">
-        Error loading history
-      </div>
-    )
+    return <div className="flex items-center justify-center h-full text-red-down">Error loading history</div>
   }
 
   const snapshots = history.snapshots || []
 
   const option = {
-    title: {
-      text: 'Portfolio Value Over Time',
-      textStyle: { color: '#ffffff', fontSize: 14 },
-      left: 'center',
-    },
+    backgroundColor: 'transparent',
     tooltip: {
       trigger: 'axis',
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -42,10 +30,10 @@ export function PnLChart() {
       },
     },
     grid: {
-      left: '10%',
-      right: '10%',
-      top: '15%',
-      bottom: '10%',
+      left: '8%',
+      right: '4%',
+      top: '8%',
+      bottom: '12%',
       containLabel: true,
     },
     xAxis: {
@@ -59,6 +47,7 @@ export function PnLChart() {
     },
     yAxis: {
       type: 'value',
+      scale: true,  // auto-range so small P&L changes are visible
       axisLine: { lineStyle: { color: '#444' } },
       axisLabel: { color: '#888' },
       splitLine: { lineStyle: { color: '#333' } },
@@ -82,13 +71,13 @@ export function PnLChart() {
   }
 
   return (
-    <div className="w-full h-full bg-panel rounded border border-gray-700">
-      {snapshots.length === 0 ? (
+    <div className="w-full h-full">
+      {snapshots.length < 2 ? (
         <div className="flex items-center justify-center h-full text-gray-400">
-          No portfolio history yet
+          {snapshots.length === 0 ? 'No portfolio history yet' : 'Collecting history...'}
         </div>
       ) : (
-        <ReactECharts option={option} style={{ height: '100%' }} />
+        <ReactECharts option={option} style={{ height: '100%' }} theme="dark" />
       )}
     </div>
   )

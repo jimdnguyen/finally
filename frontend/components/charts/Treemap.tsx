@@ -7,50 +7,49 @@ export function Treemap() {
   const { data: portfolio, isLoading, error } = usePortfolio()
 
   if (isLoading) {
-    return (
-      <div className="w-full h-full bg-panel rounded border border-gray-700 flex items-center justify-center text-gray-400">
-        Loading portfolio...
-      </div>
-    )
+    return <div className="flex items-center justify-center h-full text-gray-400">Loading portfolio...</div>
   }
 
   if (error || !portfolio) {
-    return (
-      <div className="w-full h-full bg-panel rounded border border-gray-700 flex items-center justify-center text-red-down">
-        Error loading portfolio
-      </div>
-    )
+    return <div className="flex items-center justify-center h-full text-red-down">Error loading portfolio</div>
   }
 
-  // Convert positions to treemap data
+  if (portfolio.positions.length === 0) {
+    return <div className="flex items-center justify-center h-full text-gray-400">No positions yet</div>
+  }
+
+  // Convert positions to treemap data — size by position value, color by P&L
   const treemapData = portfolio.positions.map((pos) => {
-    const value = Math.abs(pos.unrealized_pnl)
-    const color = pos.unrealized_pnl >= 0 ? '#22c55e' : '#ef4444'
+    const positionValue = pos.quantity * pos.current_price
+    const pnl = pos.unrealized_pnl
+    const color = pnl > 0 ? '#22c55e' : pnl < 0 ? '#ef4444' : '#4b5563'
+    const pnlSign = pnl >= 0 ? '+' : ''
 
     return {
       name: pos.ticker,
-      value,
+      value: positionValue,
+      pnl,
       itemStyle: { color },
       label: {
         show: true,
         fontSize: 12,
         color: '#ffffff',
+        formatter: `{b}\n${pnlSign}$${pnl.toFixed(0)}`,
       },
     }
   })
 
   const option = {
-    title: {
-      text: 'Portfolio Positions (sized by weight, colored by P&L)',
-      textStyle: { color: '#ffffff', fontSize: 14 },
-      left: 'center',
-    },
+    backgroundColor: 'transparent',
     tooltip: {
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
       textStyle: { color: '#ffffff' },
       borderColor: '#444',
-      formatter: (params: any) =>
-        `${params.name}<br/>P&L: $${(params.value || 0).toFixed(2)}`,
+      formatter: (params: any) => {
+        const pnl = params.data?.pnl ?? 0
+        const sign = pnl >= 0 ? '+' : ''
+        return `${params.name}<br/>Value: $${(params.value || 0).toFixed(2)}<br/>P&L: ${sign}$${pnl.toFixed(2)}`
+      },
     },
     series: [
       {
@@ -64,8 +63,8 @@ export function Treemap() {
   }
 
   return (
-    <div className="w-full h-full bg-panel rounded border border-gray-700">
-      <ReactECharts option={option} style={{ height: '100%' }} />
+    <div className="w-full h-full">
+      <ReactECharts option={option} style={{ height: '100%' }} theme="dark" />
     </div>
   )
 }
