@@ -1,8 +1,8 @@
 'use client'
 
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import './globals.css'
+import '@/styles/globals.css'
 
 const queryClient = new QueryClient({
   defaultOptions: {
