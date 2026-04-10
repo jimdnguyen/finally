@@ -47,9 +47,11 @@ def build_context_block(cursor: sqlite3.Cursor, price_cache: PriceCache) -> str:
     cash = data["cash_balance"]
     total_value = data["total_value"]
 
-    # Build positions prose (sorted by value descending, highest first)
+    # Build positions prose (largest positions first — most relevant for LLM analysis)
     positions_sorted = sorted(
-        data["positions"], key=lambda p: p["ticker"]  # Could also sort by value
+        data["positions"],
+        key=lambda p: p.get("current_price", 0) * p.get("quantity", 0),
+        reverse=True,
     )
 
     positions_prose = []

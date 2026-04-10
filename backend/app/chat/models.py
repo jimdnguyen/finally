@@ -67,3 +67,24 @@ class ChatResponse(BaseModel):
         default_factory=list,
         description="Watchlist modifications (add/remove tickers)",
     )
+
+
+class ChatAPIResponse(ChatResponse):
+    """API response for POST /api/chat.
+
+    Extends ChatResponse with execution results so the frontend can display
+    which trades succeeded, which watchlist changes were applied, and any errors.
+    """
+
+    executed_trades: list[dict] = Field(
+        default_factory=list,
+        description="Trade execution results (one entry per executed trade)",
+    )
+    executed_watchlist: list[dict] = Field(
+        default_factory=list,
+        description="Watchlist change results (one entry per applied change)",
+    )
+    errors: list[str] = Field(
+        default_factory=list,
+        description="Error messages for failed trades or watchlist changes",
+    )
