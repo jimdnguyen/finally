@@ -11,6 +11,7 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.background.tasks import snapshot_loop
 from app.chat import create_chat_router
@@ -97,3 +98,8 @@ app.include_router(create_chat_router())
 
 # Health router has prefix=/health; mount under /api to produce /api/health
 app.include_router(create_health_router(), prefix="/api")
+
+# Mount static files for Next.js SPA
+# html=True: serve index.html for any 404 on missing files
+# Enables Next.js client router to handle /dashboard, /portfolio, etc.
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
