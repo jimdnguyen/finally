@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { WatchlistPanel } from '@/components/watchlist/WatchlistPanel'
+import { MainChart } from '@/components/charts/MainChart'
 import { ConnectionStatus } from '@/components/header/ConnectionStatus'
 
 const DEFAULT_TICKERS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'NVDA', 'META', 'JPM', 'V', 'NFLX']
@@ -25,9 +26,22 @@ export default function Page() {
           onTickerClick={setSelectedTicker}
         />
 
-        {/* Center column (flex-1) - placeholder for charts */}
-        <main className="flex-1 bg-base p-4 overflow-auto">
-          <div className="text-gray-400">Main chart area - selected: {selectedTicker}</div>
+        {/* Center column (flex-1) */}
+        <main className="flex-1 bg-base p-4 overflow-auto flex flex-col gap-4">
+          <MainChart ticker={selectedTicker} />
+          {/* Portfolio row (heatmap + P&L) placeholder */}
+          <div className="flex gap-4 flex-1">
+            <div className="flex-1 bg-panel rounded border border-gray-700 p-4 text-gray-400">
+              Treemap placeholder
+            </div>
+            <div className="flex-1 bg-panel rounded border border-gray-700 p-4 text-gray-400">
+              P&L chart placeholder
+            </div>
+          </div>
+          {/* Positions table placeholder */}
+          <div className="bg-panel rounded border border-gray-700 p-4 text-gray-400 h-40">
+            Positions table placeholder
+          </div>
         </main>
 
         {/* Chat sidebar (300px) - placeholder */}
