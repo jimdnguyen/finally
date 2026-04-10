@@ -43,8 +43,9 @@ COPY --from=frontend /build/out ./static
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1
 
-# Ensure appuser owns all application files
-RUN chown -R appuser:appuser /app
+# Create db directory and ensure appuser owns everything
+# (mkdir before chown so Docker initialises the volume with correct ownership)
+RUN mkdir -p /app/db && chown -R appuser:appuser /app
 
 # Switch to non-root user
 USER appuser
