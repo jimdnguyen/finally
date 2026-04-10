@@ -2,7 +2,7 @@
 
 import sqlite3
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 from fastapi import HTTPException
@@ -252,7 +252,7 @@ async def execute_trade(
         HTTPException: 400 for validation failures, 500 for system errors
     """
 
-    async def _execute_sync():
+    def _execute_sync():
         # Pre-validate against cache (fresh prices, no lock held)
         is_valid, error_msg = validate_trade_setup(db, ticker, side, quantity, price_cache)
         if not is_valid:
@@ -363,7 +363,7 @@ async def execute_trade(
 
             # Step 4: Record trade log entry (immutable audit trail)
             trade_id = str(uuid.uuid4())
-            executed_at = datetime.utcnow().isoformat()
+            executed_at = datetime.now(timezone.utc).isoformat()
             cursor.execute(
                 """INSERT INTO trades (id, user_id, ticker, side, quantity, price, executed_at)
                    VALUES (?, 'default', ?, ?, ?, ?, ?)""",
@@ -373,7 +373,7 @@ async def execute_trade(
             # Step 5: Record portfolio snapshot (immediately post-trade, same transaction)
             snapshot_id = str(uuid.uuid4())
             total_value = compute_portfolio_value(cursor, price_cache)
-            recorded_at = datetime.utcnow().isoformat()
+            recorded_at = datetime.now(timezone.utc).isoformat()
             cursor.execute(
                 """INSERT INTO portfolio_snapshots (id, user_id, total_value, recorded_at)
                    VALUES (?, 'default', ?, ?)""",
