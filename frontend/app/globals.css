@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background-color: #0d1117;
+  color: #c9d1d9;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  height: 100%;
+}
+
+/* Price flash animations */
+@keyframes flashUp {
+  0% { background-color: rgba(63, 185, 80, 0.4); }
+  100% { background-color: transparent; }
+}
+
+@keyframes flashDown {
+  0% { background-color: rgba(248, 81, 73, 0.4); }
+  100% { background-color: transparent; }
+}
+
+.price-flash-up {
+  animation: flashUp 500ms ease-out;
+}
+
+.price-flash-down {
+  animation: flashDown 500ms ease-out;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #161b22;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444c56;
+}
+
+/* SVG and chart styling */
+.recharts-surface {
+  filter: none !important;
+}
+
+.recharts-tooltip-wrapper {
+  outline: none;
+}
