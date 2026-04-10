@@ -205,3 +205,20 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+node_modules/
+.next/
+.playwright-mcp/
+
+# Next.js static export output
+frontend/out/
+
+# Copied frontend build (served by FastAPI)
+static/
+
+# SQLite database (runtime file)
+*.db
+
+# Local Claude settings and runtime files
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
