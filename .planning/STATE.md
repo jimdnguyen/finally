@@ -1,8 +1,23 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+current_phase: 02
+status: planning
+last_updated: "2026-04-10"
+progress:
+  total_phases: 5
+  completed_phases: 1
+  total_plans: 4
+  completed_plans: 4
+  percent: 20
+---
+
 # State: FinAlly v1.0
 
 **Last updated:** 2026-04-09  
-**Current phase:** Phase 1 — Database & Core API  
-**Status:** Roadmap complete, ready for planning
+**Current phase:** 01
+**Status:** Executing Phase 01
 
 ---
 
@@ -18,11 +33,14 @@
 
 ## Current Position
 
+Phase: 01 (Database & Core API) — EXECUTING
+Plan: 1 of 4
 **Phase:** 1 of 5 (Database & Core API)
 
 **Focus:** Establish SQLite persistence and foundational REST endpoints.
 
 **Progress:**
+
 ```
 Phase 1: Database & Core API
 ████░░░░░░░░░░░░░░░░░░░░░░  0% complete
