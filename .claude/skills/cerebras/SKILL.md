@@ -1,6 +1,6 @@
 ---
 name: cerebras
-description: Use this skill when writing code that calls an LLM through LiteLLM and OpenRouter in this project. This project only allows `openrouter/free`, with Cerebras set as the preferred inference provider. Covers setup, Structured Outputs, and streaming logic for both standard-model and reasoning-model behaviors that `openrouter/free` can return.
+description: Use this skill when writing code that calls an LLM through LiteLLM and OpenRouter in this project. This project only allows `openrouter/openrouter/free` (double prefix required — see bug note), with Cerebras set as the preferred inference provider. Covers setup, Structured Outputs, and streaming logic for both standard-model and reasoning-model behaviors.
 ---
 
 # LiteLLM via OpenRouter
@@ -10,9 +10,14 @@ Use LiteLLM for all LLM calls in this repo.
 This project only allows one model configuration:
 
 ```python
-MODEL = "openrouter/free"
+MODEL = "openrouter/openrouter/free"
 EXTRA_BODY = {"provider": {"order": ["cerebras"]}}
 ```
+
+**Bug:** Use `openrouter/openrouter/free`, NOT `openrouter/free`. LiteLLM strips the
+provider prefix before routing, turning `openrouter/free` into bare `free` and causing
+a 502 error. The double prefix survives stripping and resolves correctly.
+See: https://github.com/BerriAI/litellm/issues/21252
 
 Do not switch to a different OpenRouter model in this project unless the user explicitly changes that requirement.
 
@@ -28,9 +33,9 @@ uv add litellm pydantic
 
 Prefer Structured Outputs for backend flows that need to populate legal-document fields.
 
-## Important behavior of `openrouter/free`
+## Important behavior of `openrouter/openrouter/free`
 
-Even though the configured model string is always `openrouter/free`, OpenRouter can still route requests to two kinds of underlying models:
+Even though the configured model string is always `openrouter/openrouter/free`, OpenRouter can still route requests to two kinds of underlying models:
 
 - standard models that stream answer text in `delta.content`
 - reasoning models that stream `delta.reasoning` first and only later emit `delta.content`
@@ -45,7 +50,7 @@ Use one shared kwargs object so provider settings are always included.
 from litellm import completion
 
 call_kwargs = {
-    "model": "openrouter/free",
+    "model": "openrouter/openrouter/free",
     "messages": messages,
     "extra_body": {"provider": {"order": ["cerebras"]}},
 }
@@ -85,7 +90,7 @@ Validate the JSON before using it to populate legal fields.
 
 ## Streaming
 
-If you stream chat output from `openrouter/free`, handle both token types:
+If you stream chat output from `openrouter/openrouter/free`, handle both token types:
 
 - accumulate `delta.reasoning` separately from visible answer text
 - accumulate `delta.content` as the user-visible answer
@@ -119,7 +124,7 @@ Some SDK responses are dict-like instead of attribute-like. Adjust the field acc
 
 ## Default guidance for this project
 
-- Always use `openrouter/free`.
+- Always use `openrouter/openrouter/free` (double prefix — see bug note above).
 - Always prefer Cerebras via `extra_body`.
 - Use Structured Outputs for legal-data extraction and document field population.
 - When streaming, support both reasoning-first and content-first responses.
