@@ -15,5 +15,6 @@ vi.mock('echarts', () => ({
   init: vi.fn(() => ({
     setOption: vi.fn(),
     dispose: vi.fn(),
+    resize: vi.fn(),
   })),
 }))
