@@ -41,6 +41,12 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 - SYS-01: `GET /api/health` for Docker healthcheck
 - INFRA-03: SQLite persistence via Docker volume mount
 
+**Plans:**
+- [ ] 01-01-PLAN.md — Wave 1: Database & dependencies (DATA-01, DATA-02, DATA-03, DATA-04, INFRA-03)
+- [ ] 01-02-PLAN.md — Wave 2: Portfolio endpoints (PORT-01, PORT-03, PORT-04)
+- [ ] 01-03-PLAN.md — Wave 3: Watchlist endpoint (WTCH-01)
+- [ ] 01-04-PLAN.md — Wave 3: Health check endpoint (SYS-01)
+
 **Success Criteria (what must be TRUE when Phase 1 completes):**
 1. User can start the app and see $10,000 cash balance with zero positions
 2. User can retrieve their current watchlist (10 default tickers) with latest prices
@@ -180,7 +186,7 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Database & Core API | 0/? | Not started | — |
+| 1. Database & Core API | 4/4 | Ready for execution | — |
 | 2. Portfolio Trading | 0/? | Not started | — |
 | 3. LLM Chat Integration | 0/? | Not started | — |
 | 4. Frontend UI | 0/? | Not started | — |
@@ -188,5 +194,5 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 
 ---
 
-**Roadmap created: 2026-04-09**  
+**Roadmap updated: 2026-04-09**  
 **Coverage: 43/43 pending requirements mapped | 5/5 pre-existing validated**
