@@ -101,6 +101,10 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 - CHAT-05: Persist conversation history and executed actions to chat_messages table
 - CHAT-06: LiteLLM override for OpenRouter structured output detection bug
 
+**Plans:**
+- [ ] 03-01-PLAN.md — Wave 1: Chat models + test scaffolding (CHAT-02, CHAT-04)
+- [ ] 03-02-PLAN.md — Wave 2: Chat service + LLM integration + routes (CHAT-01, CHAT-03, CHAT-05, CHAT-06)
+
 **Success Criteria (what must be TRUE when Phase 3 completes):**
 1. User sends "Buy 10 AAPL" to chat; LLM responds with structured JSON, trade executes, position is created
 2. User sends "What's my portfolio value?"; LLM responds with analysis of current positions, cash, and P&L
@@ -191,8 +195,8 @@ FinAlly v1.0 is built in five sequential phases aligned to delivery dependencies
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Database & Core API | 4/4 | Complete | 2026-04-10 |
-| 2. Portfolio Trading | 2/2 | Planning complete | — |
-| 3. LLM Chat Integration | 0/? | Not started | — |
+| 2. Portfolio Trading | 2/2 | Complete | 2026-04-10 |
+| 3. LLM Chat Integration | 2/2 | Planning complete | — |
 | 4. Frontend UI | 0/? | Not started | — |
 | 5. Docker & E2E Testing | 0/? | Not started | — |
 

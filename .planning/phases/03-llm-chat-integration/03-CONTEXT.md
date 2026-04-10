@@ -61,7 +61,7 @@ The following areas were not discussed — Claude has full flexibility:
 **Downstream agents MUST read these before planning or implementing.**
 
 ### LLM Integration
-- `.claude/skills/cerebras/SKILL.md` — Model string (`openrouter/free`), `extra_body`
+- `.claude/skills/cerebras/SKILL.md` — Model string (`openrouter/openrouter/free`), `extra_body`
   for Cerebras routing, Structured Outputs pattern, streaming behavior notes. This is
   the authoritative skill reference for all LiteLLM calls in this project.
 
