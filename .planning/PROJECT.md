@@ -19,6 +19,13 @@ A Bloomberg-terminal-style UI with streaming live prices and an AI copilot that 
 - ✓ SSE streaming endpoint `/api/stream/prices` reading from price cache — existing
 - ✓ Market data background task (simulator or Massive, env-driven) — existing
 - ✓ Unit tests for market data: 73 passing, 84% coverage — existing
+- ✓ Chat API: LLM integration with structured outputs, auto-execute trades — Validated in Phase 3: LLM Chat Integration
+- ✓ LiteLLM → OpenRouter (Cerebras) client for structured chat responses — Validated in Phase 3
+- ✓ System prompt with portfolio context injection (fresh prose on every request) — Validated in Phase 3
+- ✓ Structured output: message + trades + watchlist_changes — Validated in Phase 3
+- ✓ Auto-execute validated trades from LLM response (continue-and-report partial failures) — Validated in Phase 3
+- ✓ Mock mode (LLM_MOCK=true) for deterministic testing — Validated in Phase 3
+- ✓ Chat message history persists in `chat_messages` table — Validated in Phase 3
 
 ### Active
 
@@ -27,16 +34,8 @@ A Bloomberg-terminal-style UI with streaming live prices and an AI copilot that 
 - [ ] SQLite database with lazy initialization and default seed data
 - [ ] Portfolio API: positions, cash balance, trade execution, P&L history
 - [ ] Watchlist API: list, add, remove tickers
-- [ ] Chat API: LLM integration with structured outputs, auto-execute trades
 - [ ] Health check endpoint
 - [ ] Portfolio snapshot background task (every 30s + after each trade)
-
-**LLM Integration**
-- [ ] LiteLLM → OpenRouter (Cerebras) client for structured chat responses
-- [ ] System prompt with portfolio context injection
-- [ ] Structured output: message + trades + watchlist_changes
-- [ ] Auto-execute validated trades from LLM response
-- [ ] Mock mode (LLM_MOCK=true) for deterministic testing
 
 **Frontend**
 - [ ] Next.js TypeScript project with static export
@@ -119,4 +118,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-10 — Phase 02 complete: atomic trade execution (POST /api/portfolio/trade) and portfolio snapshot background task implemented. PORT-02, DATA-05 validated. Next: Phase 3 LLM chat integration.*
+*Last updated: 2026-04-10
