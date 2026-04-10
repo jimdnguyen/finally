@@ -1,43 +1,125 @@
 ---
-name: cerebras-inference
-description: Use this to write code to call an LLM using LiteLLM and OpenRouter with the Cerebras inference provider
+name: cerebras
+description: Use this skill when writing code that calls an LLM through LiteLLM and OpenRouter in this project. This project only allows `openrouter/free`, with Cerebras set as the preferred inference provider. Covers setup, Structured Outputs, and streaming logic for both standard-model and reasoning-model behaviors that `openrouter/free` can return.
 ---
 
-# Calling an LLM via Cerebras
+# LiteLLM via OpenRouter
 
-These instructions allow you write code to call an LLM with Cerebras specified as the inference provider.  
-This method uses LiteLLM and OpenRouter.
+Use LiteLLM for all LLM calls in this repo.
 
-## Setup
-
-The OPENROUTER_API_KEY must be set in the .env file and loaded in as an environment variable.  
-
-The uv project must include litellm and pydantic.
-`uv add litellm pydantic`
-
-## Code snippets
-
-Use code like these examples in order to use Cerebras.
-
-### Imports and constants
+This project only allows one model configuration:
 
 ```python
-from litellm import completion
-MODEL = "openrouter/openai/gpt-oss-120b"
+MODEL = "openrouter/free"
 EXTRA_BODY = {"provider": {"order": ["cerebras"]}}
 ```
 
-### Code to call via Cerebras for a text response
+Do not switch to a different OpenRouter model in this project unless the user explicitly changes that requirement.
 
-```python
-response = completion(model=MODEL, messages=messages, reasoning_effort="low", extra_body=EXTRA_BODY)
-result = response.choices[0].message.content
+## Setup
+
+The `OPENROUTER_API_KEY` must be set in `.env` and loaded into the environment.
+
+The `uv` project must include LiteLLM and Pydantic:
+
+```bash
+uv add litellm pydantic
 ```
 
-### Code to call via Cerebras for a Structured Outputs response
+Prefer Structured Outputs for backend flows that need to populate legal-document fields.
+
+## Important behavior of `openrouter/free`
+
+Even though the configured model string is always `openrouter/free`, OpenRouter can still route requests to two kinds of underlying models:
+
+- standard models that stream answer text in `delta.content`
+- reasoning models that stream `delta.reasoning` first and only later emit `delta.content`
+
+Treat this as one allowed model with two possible response behaviors.
+
+## Build call kwargs once
+
+Use one shared kwargs object so provider settings are always included.
 
 ```python
-response = completion(model=MODEL, messages=messages, response_format=MyBaseModelSubclass, reasoning_effort="low", extra_body=EXTRA_BODY)
-result = response.choices[0].message.content
+from litellm import completion
+
+call_kwargs = {
+    "model": "openrouter/free",
+    "messages": messages,
+    "extra_body": {"provider": {"order": ["cerebras"]}},
+}
+```
+
+Do not assume provider-specific knobs such as `reasoning_effort` are always supported by whichever free model OpenRouter picks.
+
+## Text response
+
+```python
+response = completion(**call_kwargs)
+result = response.choices[0].message.content or ""
+```
+
+## Structured Outputs
+
+Prefer non-streaming Structured Outputs for field extraction and document population.
+
+```python
+from pydantic import BaseModel
+
+
+class MyBaseModelSubclass(BaseModel):
+    ...
+
+
+response = completion(
+    **call_kwargs,
+    response_format=MyBaseModelSubclass,
+)
+
+result = response.choices[0].message.content or ""
 result_as_object = MyBaseModelSubclass.model_validate_json(result)
 ```
+
+Validate the JSON before using it to populate legal fields.
+
+## Streaming
+
+If you stream chat output from `openrouter/free`, handle both token types:
+
+- accumulate `delta.reasoning` separately from visible answer text
+- accumulate `delta.content` as the user-visible answer
+- keep the loading or typing indicator visible while only reasoning tokens are arriving
+- do not display reasoning tokens by default
+- set loading to false when real content arrives or when the stream ends
+
+Use a loop shaped like this:
+
+```python
+reasoning_accumulated = ""
+content_accumulated = ""
+
+for chunk in stream:
+    delta = chunk.choices[0].delta
+    content = getattr(delta, "content", None)
+    reasoning = getattr(delta, "reasoning", None)
+
+    if content:
+        content_accumulated += content
+        # update the visible assistant message here
+        # mark loading false once real content starts
+    elif reasoning:
+        reasoning_accumulated += reasoning
+        # keep loading true so the UI still shows progress
+
+# after the loop, always clear loading so the UI never gets stuck
+```
+
+Some SDK responses are dict-like instead of attribute-like. Adjust the field access if needed, but preserve the same branching behavior.
+
+## Default guidance for this project
+
+- Always use `openrouter/free`.
+- Always prefer Cerebras via `extra_body`.
+- Use Structured Outputs for legal-data extraction and document field population.
+- When streaming, support both reasoning-first and content-first responses.
