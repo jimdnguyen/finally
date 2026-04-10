@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { WatchlistPanel } from '@/components/watchlist/WatchlistPanel'
 import { MainChart } from '@/components/charts/MainChart'
+import { Treemap } from '@/components/charts/Treemap'
+import { PnLChart } from '@/components/charts/PnLChart'
 import { ConnectionStatus } from '@/components/header/ConnectionStatus'
 
 const DEFAULT_TICKERS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'NVDA', 'META', 'JPM', 'V', 'NFLX']
@@ -29,13 +31,13 @@ export default function Page() {
         {/* Center column (flex-1) */}
         <main className="flex-1 bg-base p-4 overflow-auto flex flex-col gap-4">
           <MainChart ticker={selectedTicker} />
-          {/* Portfolio row (heatmap + P&L) placeholder */}
-          <div className="flex gap-4 flex-1">
-            <div className="flex-1 bg-panel rounded border border-gray-700 p-4 text-gray-400">
-              Treemap placeholder
+          {/* Portfolio row (heatmap + P&L) */}
+          <div className="flex gap-4 flex-1 min-h-0">
+            <div className="flex-1">
+              <Treemap />
             </div>
-            <div className="flex-1 bg-panel rounded border border-gray-700 p-4 text-gray-400">
-              P&L chart placeholder
+            <div className="flex-1">
+              <PnLChart />
             </div>
           </div>
           {/* Positions table placeholder */}
