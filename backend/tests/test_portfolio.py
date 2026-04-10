@@ -5,10 +5,12 @@ import uuid
 from decimal import Decimal
 
 import pytest
+from fastapi import HTTPException
 
 from app.market import PriceCache
 from app.portfolio.service import (
     compute_portfolio_value,
+    execute_trade,
     get_portfolio_data,
     validate_trade_setup,
 )
@@ -173,3 +175,281 @@ def test_decimal_precision(
     # (150.00 - 100.01) * 10 = 49.99 * 10 = 499.90
     actual_pnl = Decimal(str(position["unrealized_pnl"]))
     assert actual_pnl == expected_pnl
+
+
+@pytest.mark.asyncio
+async def test_trade_buy_success(test_db: sqlite3.Connection, price_cache: PriceCache) -> None:
+    """Test successful buy trade: cash decreases, position is created.
+
+    Requirement: PORT-02
+
+    User buys 10 AAPL at 150.00; cash decreases by 1500, position created.
+    """
+    # Setup: Update price cache
+    price_cache.update("AAPL", 150.00)
+
+    # Action: Execute buy trade
+    result = await execute_trade(
+        test_db, "AAPL", "buy", Decimal("10"), price_cache
+    )
+
+    # Assert: Result success and values
+    assert result["success"] is True
+    assert result["ticker"] == "AAPL"
+    assert result["side"] == "buy"
+    assert result["quantity"] == 10.0
+    assert result["price"] == 150.0
+    assert result["new_balance"] == pytest.approx(8500.0, abs=0.01)
+    assert "executed_at" in result
+
+    # Verify DB state: position created
+    cursor = test_db.cursor()
+    cursor.execute("SELECT quantity, avg_cost FROM positions WHERE ticker='AAPL'")
+    row = cursor.fetchone()
+    assert row is not None
+    assert float(row[0]) == 10.0
+    assert float(row[1]) == 150.0
+
+    # Verify DB state: cash decreased
+    cursor.execute("SELECT cash_balance FROM users_profile WHERE id='default'")
+    balance = cursor.fetchone()[0]
+    assert float(balance) == pytest.approx(8500.0, abs=0.01)
+
+    # Verify DB state: trade log recorded
+    cursor.execute("SELECT side, quantity, price FROM trades WHERE ticker='AAPL'")
+    trade_row = cursor.fetchone()
+    assert trade_row is not None
+    assert trade_row[0] == "buy"
+    assert float(trade_row[1]) == 10.0
+    assert float(trade_row[2]) == 150.0
+
+
+@pytest.mark.asyncio
+async def test_trade_buy_insufficient_cash(
+    test_db: sqlite3.Connection, price_cache: PriceCache
+) -> None:
+    """Test buy fails with insufficient cash: HTTP 400, database unchanged.
+
+    Requirement: PORT-02
+
+    User tries to buy 100 AAPL at 150.00 (cost 15000) with cash 10000.
+    """
+    # Setup: Update price cache
+    price_cache.update("AAPL", 150.00)
+
+    # Get initial balance
+    cursor = test_db.cursor()
+    cursor.execute("SELECT cash_balance FROM users_profile WHERE id='default'")
+    initial_balance = float(cursor.fetchone()[0])
+
+    # Action: Attempt buy trade (should fail)
+    with pytest.raises(HTTPException) as exc_info:
+        await execute_trade(
+            test_db, "AAPL", "buy", Decimal("100"), price_cache
+        )
+
+    # Assert: HTTPException status 400
+    assert exc_info.value.status_code == 400
+    assert "Insufficient cash" in exc_info.value.detail
+
+    # Verify DB state unchanged
+    cursor.execute("SELECT cash_balance FROM users_profile WHERE id='default'")
+    final_balance = float(cursor.fetchone()[0])
+    assert final_balance == initial_balance
+
+    # Verify no position created
+    cursor.execute("SELECT COUNT(*) as cnt FROM positions WHERE ticker='AAPL'")
+    count = cursor.fetchone()[0]
+    assert count == 0
+
+
+@pytest.mark.asyncio
+async def test_trade_sell_success(test_db: sqlite3.Connection, price_cache: PriceCache) -> None:
+    """Test successful sell trade: position quantity decreases, cash increases.
+
+    Requirement: PORT-02
+
+    Setup: User has 10 AAPL at avg_cost 100.00, cash 8500.00.
+    Action: Sell 5 AAPL at current price 160.00.
+    Result: Position qty becomes 5, cash becomes 9300.00.
+    """
+    # Setup: Insert position
+    cursor = test_db.cursor()
+    position_id = str(uuid.uuid4())
+    cursor.execute(
+        """
+        INSERT INTO positions (id, user_id, ticker, quantity, avg_cost, updated_at)
+        VALUES (?, 'default', 'AAPL', 10.0, '100.00', datetime('now'))
+    """,
+        (position_id,),
+    )
+    # Update cash to 8500
+    cursor.execute(
+        "UPDATE users_profile SET cash_balance=? WHERE id='default'",
+        ("8500.00",),
+    )
+    test_db.commit()
+
+    # Setup: Price cache
+    price_cache.update("AAPL", 160.00)
+
+    # Action: Sell 5 shares
+    result = await execute_trade(
+        test_db, "AAPL", "sell", Decimal("5"), price_cache
+    )
+
+    # Assert: Result success
+    assert result["success"] is True
+    assert result["ticker"] == "AAPL"
+    assert result["side"] == "sell"
+    assert result["quantity"] == 5.0
+    assert result["price"] == 160.0
+    assert result["new_balance"] == pytest.approx(9300.0, abs=0.01)
+
+    # Verify DB state: position quantity decreased
+    cursor.execute("SELECT quantity, avg_cost FROM positions WHERE ticker='AAPL'")
+    row = cursor.fetchone()
+    assert float(row[0]) == 5.0
+    assert float(row[1]) == 100.0  # avg_cost unchanged
+
+    # Verify DB state: cash increased
+    cursor.execute("SELECT cash_balance FROM users_profile WHERE id='default'")
+    balance = float(cursor.fetchone()[0])
+    assert balance == pytest.approx(9300.0, abs=0.01)
+
+
+@pytest.mark.asyncio
+async def test_trade_sell_insufficient_shares(
+    test_db: sqlite3.Connection, price_cache: PriceCache
+) -> None:
+    """Test sell fails with insufficient shares: HTTP 400, database unchanged.
+
+    Requirement: PORT-02
+
+    User tries to sell 20 AAPL when owning only 10.
+    """
+    # Setup: Insert position
+    cursor = test_db.cursor()
+    position_id = str(uuid.uuid4())
+    cursor.execute(
+        """
+        INSERT INTO positions (id, user_id, ticker, quantity, avg_cost, updated_at)
+        VALUES (?, 'default', 'AAPL', 10.0, '150.00', datetime('now'))
+    """,
+        (position_id,),
+    )
+    test_db.commit()
+
+    # Setup: Price cache
+    price_cache.update("AAPL", 150.00)
+
+    # Get initial state
+    cursor.execute("SELECT quantity FROM positions WHERE ticker='AAPL'")
+    initial_qty = float(cursor.fetchone()[0])
+
+    # Action: Attempt to sell more than owned
+    with pytest.raises(HTTPException) as exc_info:
+        await execute_trade(
+            test_db, "AAPL", "sell", Decimal("20"), price_cache
+        )
+
+    # Assert: HTTPException status 400
+    assert exc_info.value.status_code == 400
+    assert "Insufficient shares" in exc_info.value.detail
+
+    # Verify DB state unchanged
+    cursor.execute("SELECT quantity FROM positions WHERE ticker='AAPL'")
+    final_qty = float(cursor.fetchone()[0])
+    assert final_qty == initial_qty
+
+
+@pytest.mark.asyncio
+async def test_sell_to_zero(test_db: sqlite3.Connection, price_cache: PriceCache) -> None:
+    """Test sell-to-zero edge case: position row deleted when qty becomes zero.
+
+    Requirement: PORT-02 (Pitfall 5)
+
+    User sells entire position (10 shares); position should be deleted.
+    """
+    # Setup: Insert position
+    cursor = test_db.cursor()
+    position_id = str(uuid.uuid4())
+    cursor.execute(
+        """
+        INSERT INTO positions (id, user_id, ticker, quantity, avg_cost, updated_at)
+        VALUES (?, 'default', 'AAPL', 10.0, '100.00', datetime('now'))
+    """,
+        (position_id,),
+    )
+    test_db.commit()
+
+    # Setup: Price cache
+    price_cache.update("AAPL", 150.00)
+
+    # Action: Sell entire position
+    result = await execute_trade(
+        test_db, "AAPL", "sell", Decimal("10"), price_cache
+    )
+
+    # Assert: Result success
+    assert result["success"] is True
+
+    # Verify DB state: position row is deleted (not zeroed)
+    cursor.execute("SELECT COUNT(*) as cnt FROM positions WHERE ticker='AAPL'")
+    count = cursor.fetchone()[0]
+    assert count == 0
+
+    # Verify cash increased by (10 * 150.00) = 1500.00
+    cursor.execute("SELECT cash_balance FROM users_profile WHERE id='default'")
+    balance = float(cursor.fetchone()[0])
+    assert balance == pytest.approx(11500.0, abs=0.01)
+
+
+@pytest.mark.asyncio
+async def test_buy_increases_existing_position(
+    test_db: sqlite3.Connection, price_cache: PriceCache
+) -> None:
+    """Test buy on existing position: quantity and avg_cost recalculated.
+
+    Requirement: PORT-02
+
+    Setup: User has 10 AAPL at avg_cost 100.00.
+    Action: Buy 10 more at price 110.00.
+    Result: qty=20, avg_cost=(10*100 + 10*110)/20 = 105.00.
+    """
+    # Setup: Insert position
+    cursor = test_db.cursor()
+    position_id = str(uuid.uuid4())
+    cursor.execute(
+        """
+        INSERT INTO positions (id, user_id, ticker, quantity, avg_cost, updated_at)
+        VALUES (?, 'default', 'AAPL', 10.0, '100.00', datetime('now'))
+    """,
+        (position_id,),
+    )
+    test_db.commit()
+
+    # Setup: Price cache and initial cash
+    price_cache.update("AAPL", 110.00)
+
+    # Action: Buy 10 more AAPL at 110.00
+    result = await execute_trade(
+        test_db, "AAPL", "buy", Decimal("10"), price_cache
+    )
+
+    # Assert: Result success
+    assert result["success"] is True
+    assert result["quantity"] == 10.0
+    assert result["price"] == 110.0
+
+    # Verify DB state: position updated with new qty and avg_cost
+    cursor.execute("SELECT quantity, avg_cost FROM positions WHERE ticker='AAPL'")
+    row = cursor.fetchone()
+    assert float(row[0]) == 20.0
+    # avg_cost = (10*100 + 10*110) / 20 = 2100 / 20 = 105.0
+    assert float(row[1]) == pytest.approx(105.0, abs=0.01)
+
+    # Verify cash decreased by (10 * 110.00) = 1100.00
+    cursor.execute("SELECT cash_balance FROM users_profile WHERE id='default'")
+    balance = float(cursor.fetchone()[0])
+    assert balance == pytest.approx(8900.0, abs=0.01)
