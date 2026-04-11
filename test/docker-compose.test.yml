@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  app:
+    # Build from parent directory Dockerfile
+    build:
+      context: ..
+      dockerfile: Dockerfile
+
+    ports:
+      - '8000:8000'
+
+    environment:
+      # Set LLM_MOCK=true for deterministic responses (no OpenRouter call)
+      LLM_MOCK: 'true'
+      # Provide dummy OpenRouter key (not used in mock mode, but required for validation)
+      OPENROUTER_API_KEY: 'test-key-not-used'
+      # Optional: Disable Massive API (use simulator only)
+      MASSIVE_API_KEY: ''
+
+    volumes:
+      # Ephemeral database: destroyed when container stops
+      - test-db:/app/db
+
+    healthcheck:
+      # Check if /api/health returns 200
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/api/health']
+      interval: 1s
+      timeout: 3s
+      retries: 30  # Wait up to 30 seconds for app to be ready
+      start_period: 5s  # Grace period before first health check
+
+    # Ensure app starts and becomes healthy before test container
+    depends_on: {}  # docker-compose v3 doesn't support condition; use depends_on with healthcheck
+
+  playwright:
+    # Use official Playwright Docker image
+    image: mcr.microsoft.com/playwright:v1.58-focal
+
+    working_dir: /test
+
+    volumes:
+      # Mount entire test/ directory
+      - .:/test
+      # Avoid syncing node_modules (use container's version)
+      - /test/node_modules
+
+    environment:
+      # Inherit environment variables if needed
+      CI: 'true'  # Run in CI mode (no headed browser)
+
+    depends_on:
+      # Wait for app service to be healthy
+      app:
+        condition: service_healthy
+
+    # Run Playwright tests
+    command: npx playwright test
+
+    # Don't exit until tests complete
+    stdin_open: true
+    tty: true
+
+volumes:
+  test-db:
+    # Ephemeral volume; cleaned up when docker-compose down runs
+    driver: local
