@@ -54,7 +54,7 @@ development_status:
   # Epic 2: Portfolio Management & Trading
   epic-2: in-progress
   2-1-portfolio-api-trade-execution: done
-  2-2-portfolio-snapshot-background-task: backlog
+  2-2-portfolio-snapshot-background-task: done
   2-3-positions-table-portfolio-header: backlog
   2-4-trade-bar-ui: backlog
   2-5-watchlist-management-ui: backlog

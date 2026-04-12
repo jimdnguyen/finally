@@ -1,5 +1,6 @@
 """FinAlly FastAPI application entry point."""
 
+import asyncio
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from app.db import config as db_config
 from app.health.router import router as health_router
 from app.market import PriceCache, create_market_data_source, create_stream_router
 from app.portfolio.router import create_portfolio_router
+from app.snapshots import snapshot_loop
 from app.watchlist.router import create_watchlist_router
 
 price_cache = PriceCache()
@@ -35,7 +37,13 @@ async def lifespan(app: FastAPI):
         tickers = [row[0] for row in rows]
 
     await market_source.start(tickers)
+    snapshot_task = asyncio.create_task(snapshot_loop(price_cache))
     yield
+    snapshot_task.cancel()
+    try:
+        await snapshot_task
+    except asyncio.CancelledError:
+        pass
     await market_source.stop()
 
 

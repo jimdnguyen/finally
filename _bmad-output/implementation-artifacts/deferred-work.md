@@ -13,3 +13,8 @@
 - No `display: 'swap'` on font loaders — FOIT improvement, not breaking; fonts confirmed working
 - No minimum viewport width enforced — desktop-first per spec; responsiveness out of scope for this story
 - Turbopack active despite `--no-turbopack` init flag — non-functional deviation; build produces correct static output
+
+## Deferred from: code review of 2-2-portfolio-snapshot-background-task (2026-04-12)
+
+- No error handling for DB failures in `snapshot_loop()` — a transient DB error (e.g., locked file) would crash the task permanently. Spec pattern only catches `CancelledError`; defensive handling deferred for MVP.
+- Floating-point accumulation in portfolio value sum — native Python `sum()` with no rounding. Pre-existing deferral (F2 from Story 2.1). Acceptable for simulated portfolio.
