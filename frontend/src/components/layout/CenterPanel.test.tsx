@@ -8,6 +8,10 @@ vi.mock('./MainChart', () => ({
   default: () => <div data-testid="main-chart" />,
 }))
 
+vi.mock('./PositionsTable', () => ({
+  default: () => <div data-testid="positions-table" />,
+}))
+
 beforeEach(() => {
   usePriceStore.setState({
     prices: {},
@@ -28,5 +32,18 @@ describe('CenterPanel', () => {
     const wrapper = getByTestId('main-chart').parentElement
     expect(wrapper?.className).toContain('flex-1')
     expect(wrapper?.className).toContain('min-h-0')
+  })
+
+  it('renders PositionsTable component', () => {
+    const { getByTestId } = render(<CenterPanel />)
+    expect(getByTestId('positions-table')).toBeTruthy()
+  })
+
+  it('wraps PositionsTable in a scrollable container with border', () => {
+    const { getByTestId } = render(<CenterPanel />)
+    const wrapper = getByTestId('positions-table').parentElement
+    expect(wrapper?.className).toContain('overflow-auto')
+    expect(wrapper?.className).toContain('border-t')
+    expect(wrapper?.className).toContain('border-border')
   })
 })

@@ -1,5 +1,5 @@
 # generated: 2026-04-11
-# last_updated: 2026-04-11
+# last_updated: 2026-04-12
 # project: finally
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-11
-last_updated: 2026-04-11
+last_updated: 2026-04-12
 project: finally
 project_key: NOKEY
 tracking_system: file-system
@@ -55,7 +55,7 @@ development_status:
   epic-2: in-progress
   2-1-portfolio-api-trade-execution: done
   2-2-portfolio-snapshot-background-task: done
-  2-3-positions-table-portfolio-header: backlog
+  2-3-positions-table-portfolio-header: done
   2-4-trade-bar-ui: backlog
   2-5-watchlist-management-ui: backlog
   2-6-portfolio-heatmap: backlog
