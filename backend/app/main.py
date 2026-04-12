@@ -10,9 +10,10 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.db import init_db
-from app.db.connection import DB_PATH
+from app.db import config as db_config
 from app.health.router import router as health_router
 from app.market import PriceCache, create_market_data_source, create_stream_router
+from app.portfolio.router import create_portfolio_router
 from app.watchlist.router import create_watchlist_router
 
 price_cache = PriceCache()
@@ -26,7 +27,7 @@ async def lifespan(app: FastAPI):
     """Start market data on startup; stop cleanly on shutdown."""
     await init_db()
 
-    async with aiosqlite.connect(DB_PATH) as conn:
+    async with aiosqlite.connect(db_config.DB_PATH) as conn:
         cursor = await conn.execute(
             "SELECT ticker FROM watchlist WHERE user_id = 'default'"
         )
@@ -53,6 +54,7 @@ def create_app() -> FastAPI:
 
     app.include_router(health_router, prefix="/api")
     app.include_router(create_watchlist_router(price_cache, market_source), prefix="/api")
+    app.include_router(create_portfolio_router(price_cache), prefix="/api")
     app.include_router(create_stream_router(price_cache))
 
     if STATIC_DIR.exists():

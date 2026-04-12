@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 import aiosqlite
 
-from .connection import DB_PATH
+from . import config
 
 DEFAULT_TICKERS = ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA", "NVDA", "META", "JPM", "V", "NFLX"]
 DEFAULT_USER_ID = "default"
@@ -66,9 +66,9 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 
 async def init_db() -> None:
     """Create all tables and seed default data if empty. Idempotent."""
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    config.DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    async with aiosqlite.connect(DB_PATH) as conn:
+    async with aiosqlite.connect(config.DB_PATH) as conn:
         await conn.execute("PRAGMA journal_mode=WAL")
         await conn.executescript(_CREATE_TABLES)
 

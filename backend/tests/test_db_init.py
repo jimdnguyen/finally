@@ -10,8 +10,7 @@ from app.db.init import DEFAULT_TICKERS, DEFAULT_USER_ID, init_db
 def use_temp_db(tmp_path, monkeypatch):
     """Redirect DB_PATH to a temp file for isolation."""
     db_file = tmp_path / "test.db"
-    monkeypatch.setattr("app.db.init.DB_PATH", db_file)
-    monkeypatch.setattr("app.db.connection.DB_PATH", db_file)
+    monkeypatch.setattr("app.db.config.DB_PATH", db_file)
     return db_file
 
 

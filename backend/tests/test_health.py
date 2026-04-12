@@ -22,9 +22,7 @@ def mock_market_source(monkeypatch):
 def temp_db(tmp_path, monkeypatch):
     """Redirect DB paths to a temp file."""
     db_file = tmp_path / "test.db"
-    monkeypatch.setattr("app.db.init.DB_PATH", db_file)
-    monkeypatch.setattr("app.db.connection.DB_PATH", db_file)
-    monkeypatch.setattr("app.main.DB_PATH", db_file)
+    monkeypatch.setattr("app.db.config.DB_PATH", db_file)
     return db_file
 
 
