@@ -222,3 +222,5 @@ static/
 # Local Claude settings and runtime files
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+
+learning/

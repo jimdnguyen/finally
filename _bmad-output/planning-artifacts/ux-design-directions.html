@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinAlly — UX Design Directions</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --yellow: #ecad0a;
+    --blue: #209dd7;
+    --purple: #753991;
+    --green: #3fb950;
+    --red: #f85149;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #060a0f;
+    color: var(--text);
+    padding: 40px 20px;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--yellow);
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .page-header p {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .direction-section {
+    max-width: 1400px;
+    margin: 0 auto 80px;
+  }
+
+  .direction-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .direction-label .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--yellow);
+    background: rgba(236,173,10,0.12);
+    border: 1px solid rgba(236,173,10,0.3);
+    border-radius: 4px;
+    padding: 2px 8px;
+    letter-spacing: 1px;
+  }
+  .direction-label h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .direction-label .tag {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .mockup-frame {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  /* ─── SHARED COMPONENTS ─── */
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .green { color: var(--green); }
+  .red { color: var(--red); }
+  .muted { color: var(--muted); }
+  .yellow { color: var(--yellow); }
+  .blue { color: var(--blue); }
+
+  .badge-buy { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); border-radius: 3px; padding: 1px 6px; font-size: 10px; font-weight: 600; }
+  .badge-sell { background: rgba(248,81,73,0.15); color: var(--red); border: 1px solid rgba(248,81,73,0.3); border-radius: 3px; padding: 1px 6px; font-size: 10px; font-weight: 600; }
+
+  /* ─── DIRECTION 1: CLASSIC TERMINAL ─── */
+  .d1-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 44px;
+    gap: 24px;
+  }
+  .d1-logo { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; color: var(--yellow); letter-spacing: 2px; }
+  .d1-stat { display: flex; flex-direction: column; }
+  .d1-stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .d1-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; color: var(--text); }
+  .d1-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); margin-left: auto; }
+  .d1-dot-label { font-size: 10px; color: var(--muted); }
+
+  .d1-body { display: grid; grid-template-columns: 220px 1fr 280px; height: 540px; }
+
+  .d1-watchlist { border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+  .d1-panel-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 10px 12px 6px; border-bottom: 1px solid var(--border); font-weight: 600; }
+  .d1-ticker-row { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 8px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); cursor: pointer; }
+  .d1-ticker-row:hover { background: var(--surface); }
+  .d1-ticker-row.active { background: rgba(32,157,215,0.08); border-left: 2px solid var(--blue); padding-left: 10px; }
+  .d1-ticker-sym { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--text); }
+  .d1-ticker-name { font-size: 10px; color: var(--muted); }
+  .d1-ticker-price { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; text-align: right; }
+  .d1-ticker-chg { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-align: right; }
+  .sparkline { width: 48px; height: 20px; display: inline-block; }
+
+  .d1-center { display: flex; flex-direction: column; }
+  .d1-chart-area { flex: 1; background: var(--bg); position: relative; border-bottom: 1px solid var(--border); }
+  .d1-chart-ticker { position: absolute; top: 12px; left: 16px; }
+  .d1-chart-ticker-sym { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; color: var(--text); }
+  .d1-chart-ticker-price { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 600; color: var(--green); }
+  .d1-chart-ticker-chg { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--green); }
+  .d1-chart-placeholder { position: absolute; inset: 0; display: flex; align-items: flex-end; padding: 16px; opacity: 0.25; }
+  .chart-line { width: 100%; height: 120px; border-bottom: 1px solid var(--blue); position: relative; }
+
+  .d1-bottom { height: 180px; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border); }
+  .d1-heatmap { border-right: 1px solid var(--border); padding: 10px; }
+  .d1-heatmap-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; margin-top: 6px; height: 130px; }
+  .hm-cell { border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+  .hm-cell .sym { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.9); }
+  .hm-cell .pct { font-size: 8px; color: rgba(255,255,255,0.7); }
+
+  .d1-positions { padding: 10px; overflow: hidden; }
+  .pos-table { width: 100%; font-size: 11px; border-collapse: collapse; }
+  .pos-table th { color: var(--muted); font-weight: 500; text-align: left; padding: 2px 4px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pos-table td { font-family: 'JetBrains Mono', monospace; padding: 3px 4px; font-size: 11px; border-top: 1px solid rgba(48,54,61,0.4); }
+
+  .d1-chat { border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+  .d1-chat-messages { flex: 1; padding: 12px; overflow: hidden; display: flex; flex-direction: column; gap: 10px; }
+  .chat-msg { font-size: 12px; line-height: 1.5; }
+  .chat-msg.user { color: var(--muted); }
+  .chat-msg.ai { color: var(--text); }
+  .chat-msg .role { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 3px; }
+  .chat-msg.user .role { color: var(--muted); }
+  .chat-msg.ai .role { color: var(--yellow); }
+  .trade-confirm { background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.2); border-radius: 4px; padding: 6px 8px; margin-top: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--green); }
+
+  .d1-chat-input { border-top: 1px solid var(--border); padding: 10px; }
+  .d1-input-row { display: flex; gap: 6px; }
+  .d1-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 7px 10px; font-size: 12px; color: var(--text); outline: none; font-family: 'Inter', sans-serif; }
+  .d1-send-btn { background: var(--purple); border: none; border-radius: 4px; padding: 7px 12px; color: white; font-size: 12px; cursor: pointer; font-weight: 600; }
+
+  .d1-tradebar { border-top: 1px solid var(--border); padding: 8px 12px; display: flex; gap: 8px; align-items: center; background: var(--surface); }
+  .d1-trade-input { background: var(--bg); border: 1px solid var(--border); border-radius: 3px; padding: 5px 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); width: 80px; }
+  .btn-buy { background: rgba(63,185,80,0.15); border: 1px solid var(--green); color: var(--green); border-radius: 3px; padding: 5px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-sell { background: rgba(248,81,73,0.15); border: 1px solid var(--red); color: var(--red); border-radius: 3px; padding: 5px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .trade-label { font-size: 10px; color: var(--muted); }
+
+  /* ─── DIRECTION 2: CHART-DOMINANT ─── */
+  .d2-body { display: grid; grid-template-columns: 200px 1fr 260px; height: 580px; }
+  .d2-left { border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+  .d2-center { display: flex; flex-direction: column; }
+  .d2-chart-big { flex: 1; background: var(--bg); border-bottom: 1px solid var(--border); position: relative; padding: 16px; }
+  .d2-chart-overlay { position: absolute; top: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .d2-tab-bar { display: flex; border-bottom: 1px solid var(--border); }
+  .d2-tab { padding: 8px 14px; font-size: 11px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; }
+  .d2-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .d2-panel-content { padding: 8px; flex: 1; overflow: hidden; }
+
+  .d2-right { border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+  .d2-chat-area { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+  .d2-portfolio-strip { height: 120px; border-top: 1px solid var(--border); padding: 10px; }
+
+  /* ─── DIRECTION 3: COMMAND CENTER ─── */
+  .d3-body { display: grid; grid-template-columns: 180px 1fr 320px; height: 560px; }
+  .d3-chat-prominent { border-left: 1px solid var(--border); display: flex; flex-direction: column; background: rgba(22,27,34,0.5); }
+  .d3-chat-header { padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .ai-avatar { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--blue)); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: white; }
+
+  /* ─── DIRECTION 4: GRID DASHBOARD ─── */
+  .d4-body { display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 220px 1fr 260px; height: 560px; }
+  .d4-watchlist { grid-row: 1 / 3; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+  .d4-chart { border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); position: relative; }
+  .d4-portfolio { border-right: 1px solid var(--border); padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .d4-chat { border-bottom: 1px solid var(--border); }
+
+  /* ─── DIRECTION 5: MINIMAL FOCUSED ─── */
+  .d5-body { display: grid; grid-template-columns: 200px 1fr; height: 560px; }
+  .d5-left { border-right: 1px solid var(--border); }
+  .d5-right { display: grid; grid-template-rows: 1fr auto; }
+  .d5-main { position: relative; }
+  .d5-bottom { border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr 1fr; height: 180px; }
+  .d5-panel { border-right: 1px solid var(--border); padding: 10px; }
+  .d5-panel:last-child { border-right: none; }
+  .d5-chat-inline { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+
+  /* ─── DIRECTION 6: WIDE WATCHLIST ─── */
+  .d6-body { display: grid; grid-template-columns: 320px 1fr; height: 560px; }
+  .d6-left { border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+  .d6-watchlist-row { display: grid; grid-template-columns: 60px 1fr 70px 50px 60px; align-items: center; padding: 7px 12px; border-bottom: 1px solid rgba(48,54,61,0.4); gap: 4px; }
+  .d6-watchlist-row:hover { background: rgba(255,255,255,0.02); }
+  .d6-right { display: grid; grid-template-rows: 1fr 200px; }
+  .d6-chart { border-bottom: 1px solid var(--border); position: relative; }
+  .d6-bottom { display: grid; grid-template-columns: 1fr 280px; }
+  .d6-positions { border-right: 1px solid var(--border); }
+  .d6-chat { }
+
+  /* common SVG sparkline */
+  svg.sparkline-svg { width: 52px; height: 22px; }
+
+  .direction-notes {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  .note-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .note-card h4 { font-size: 11px; font-weight: 600; color: var(--yellow); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .note-card p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>FINALLY — UX Design Directions</h1>
+  <p>Six layout and interaction directions for evaluation. Review each, then select or combine.</p>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- DIRECTION 1: CLASSIC TERMINAL -->
+<!-- ════════════════════════════════════════════ -->
+<div class="direction-section">
+  <div class="direction-label">
+    <span class="num">DIR 01</span>
+    <h2>Classic Terminal</h2>
+    <span class="tag">TradingView-inspired · Three-panel · Balanced</span>
+  </div>
+
+  <div class="mockup-frame">
+    <!-- Header -->
+    <div class="d1-header">
+      <span class="d1-logo">FINALLY</span>
+      <div class="d1-stat">
+        <span class="d1-stat-label">Portfolio</span>
+        <span class="d1-stat-val mono" style="color:var(--green)">$12,841.50</span>
+      </div>
+      <div class="d1-stat">
+        <span class="d1-stat-label">Cash</span>
+        <span class="d1-stat-val mono">$4,220.00</span>
+      </div>
+      <div class="d1-stat">
+        <span class="d1-stat-label">Day P&L</span>
+        <span class="d1-stat-val mono green">+$284.10 +2.3%</span>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+        <div class="d1-dot"></div>
+        <span class="d1-dot-label muted" style="font-size:10px">LIVE</span>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="d1-body">
+      <!-- Watchlist -->
+      <div class="d1-watchlist">
+        <div class="d1-panel-title">Watchlist</div>
+        <div class="d1-ticker-row active">
+          <div><div class="d1-ticker-sym">AAPL</div><div class="d1-ticker-name muted">Apple Inc.</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,18 8,15 14,16 20,12 26,13 32,9 38,11 44,7 50,8" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">191.40</div>
+            <div class="d1-ticker-chg green">+1.2%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row">
+          <div><div class="d1-ticker-sym">NVDA</div><div class="d1-ticker-name muted">NVIDIA</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,16 8,14 14,10 20,8 26,11 32,7 38,4 44,6 50,3" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">875.20</div>
+            <div class="d1-ticker-chg green">+2.8%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row">
+          <div><div class="d1-ticker-sym">TSLA</div><div class="d1-ticker-name muted">Tesla</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,6 8,9 14,8 20,12 26,10 32,14 38,13 44,16 50,15" fill="none" stroke="#f85149" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price red">241.30</div>
+            <div class="d1-ticker-chg red">-1.4%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row">
+          <div><div class="d1-ticker-sym">MSFT</div><div class="d1-ticker-name muted">Microsoft</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,14 8,13 14,11 20,12 26,10 32,9 38,8 44,10 50,9" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">418.60</div>
+            <div class="d1-ticker-chg green">+0.6%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row">
+          <div><div class="d1-ticker-sym">GOOGL</div><div class="d1-ticker-name muted">Alphabet</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,10 8,12 14,11 20,13 26,12 32,11 38,13 44,12 50,11" fill="none" stroke="#f85149" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price red">174.80</div>
+            <div class="d1-ticker-chg red">-0.3%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row">
+          <div><div class="d1-ticker-sym">META</div><div class="d1-ticker-name muted">Meta</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,15 8,13 14,11 20,9 26,8 32,6 38,7 44,5 50,4" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">503.10</div>
+            <div class="d1-ticker-chg green">+3.1%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row">
+          <div><div class="d1-ticker-sym">AMZN</div><div class="d1-ticker-name muted">Amazon</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,12 8,11 14,13 20,11 26,10 32,12 38,11 44,10 50,9" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">182.40</div>
+            <div class="d1-ticker-chg green">+0.9%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row">
+          <div><div class="d1-ticker-sym">JPM</div><div class="d1-ticker-name muted">JPMorgan</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,14 8,13 14,14 20,12 26,13 32,11 38,12 44,10 50,11" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">198.50</div>
+            <div class="d1-ticker-chg green">+0.4%</div>
+          </div>
+        </div>
+
+        <!-- Trade bar inside watchlist panel -->
+        <div style="margin-top:auto; border-top:1px solid var(--border); padding:10px;">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;">Quick Trade</div>
+          <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;">
+            <input class="d1-trade-input" value="AAPL" style="width:55px">
+            <input class="d1-trade-input" value="10" style="width:42px">
+            <button class="btn-buy">BUY</button>
+            <button class="btn-sell">SELL</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: chart + portfolio bottom -->
+      <div class="d1-center">
+        <div class="d1-chart-area" style="flex:1">
+          <div class="d1-chart-ticker">
+            <div class="d1-chart-ticker-sym">AAPL <span style="font-size:12px;color:var(--muted);font-weight:400">Apple Inc.</span></div>
+            <div class="d1-chart-ticker-price">$191.40</div>
+            <div class="d1-chart-ticker-chg">▲ +2.28 (+1.2%) today</div>
+          </div>
+          <!-- fake chart visual -->
+          <svg viewBox="0 0 600 220" style="position:absolute;bottom:0;left:0;right:0;width:100%;opacity:0.6">
+            <defs>
+              <linearGradient id="cg1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3fb950" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#3fb950" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,180 C30,175 60,160 90,155 C120,150 150,145 180,130 C210,115 240,120 270,105 C300,90 330,95 360,80 C390,65 420,70 450,55 C480,40 510,50 540,42 C560,37 580,35 600,30" fill="none" stroke="#3fb950" stroke-width="2"/>
+            <path d="M0,180 C30,175 60,160 90,155 C120,150 150,145 180,130 C210,115 240,120 270,105 C300,90 330,95 360,80 C390,65 420,70 450,55 C480,40 510,50 540,42 C560,37 580,35 600,30 L600,220 L0,220 Z" fill="url(#cg1)"/>
+          </svg>
+        </div>
+        <div class="d1-bottom">
+          <div class="d1-heatmap">
+            <div class="d1-panel-title" style="padding:0 0 6px;border:none">Portfolio Heatmap</div>
+            <div class="d1-heatmap-grid">
+              <div class="hm-cell" style="background:rgba(63,185,80,0.55);grid-column:span 2;"><span class="sym">NVDA</span><span class="pct">+2.8%</span></div>
+              <div class="hm-cell" style="background:rgba(63,185,80,0.35);"><span class="sym">AAPL</span><span class="pct">+1.2%</span></div>
+              <div class="hm-cell" style="background:rgba(248,81,73,0.45);"><span class="sym">TSLA</span><span class="pct">-1.4%</span></div>
+              <div class="hm-cell" style="background:rgba(63,185,80,0.25);"><span class="sym">MSFT</span><span class="pct">+0.6%</span></div>
+              <div class="hm-cell" style="background:rgba(63,185,80,0.5);grid-column:span 1;"><span class="sym">META</span><span class="pct">+3.1%</span></div>
+            </div>
+          </div>
+          <div class="d1-positions">
+            <div class="d1-panel-title" style="padding:0 0 6px;border:none">Positions</div>
+            <table class="pos-table">
+              <thead><tr><th>Ticker</th><th>Qty</th><th>Avg Cost</th><th>P&L</th></tr></thead>
+              <tbody>
+                <tr><td>AAPL</td><td>15</td><td>185.20</td><td class="green">+$93.00</td></tr>
+                <tr><td>NVDA</td><td>5</td><td>820.00</td><td class="green">+$276.00</td></tr>
+                <tr><td>TSLA</td><td>8</td><td>248.00</td><td class="red">-$53.60</td></tr>
+                <tr><td>META</td><td>3</td><td>480.00</td><td class="green">+$69.30</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat panel -->
+      <div class="d1-chat">
+        <div class="d1-panel-title">AI Assistant — FinAlly</div>
+        <div class="d1-chat-messages">
+          <div class="chat-msg user">
+            <div class="role">You</div>
+            I'm overweight in tech. Sell half my TSLA and buy some JPM.
+          </div>
+          <div class="chat-msg ai">
+            <div class="role">FinAlly</div>
+            Good call — your tech exposure is 78% of portfolio. Selling 4 TSLA and buying 4 JPM brings tech to ~65% and adds some financial sector balance.
+            <div class="trade-confirm">✓ TSLA SELL 4 @ $241.30 · -$965.20</div>
+            <div class="trade-confirm">✓ JPM BUY 4 @ $198.50 · -$794.00</div>
+          </div>
+          <div class="chat-msg user">
+            <div class="role">You</div>
+            What's my total P&L today?
+          </div>
+          <div class="chat-msg ai">
+            <div class="role">FinAlly</div>
+            Up <span class="green">+$284.10 (+2.3%)</span> today. NVDA is your biggest winner at +$276. TSLA is the only drag at -$54.
+          </div>
+        </div>
+        <div class="d1-chat-input">
+          <div class="d1-input-row">
+            <input class="d1-input" placeholder="Ask about your portfolio...">
+            <button class="d1-send-btn">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="direction-notes">
+    <div class="note-card"><h4>Layout</h4><p>Three-column: Watchlist left, chart+portfolio center, chat right. Trade bar docked in watchlist panel. Most similar to TradingView.</p></div>
+    <div class="note-card"><h4>Strengths</h4><p>Familiar layout pattern. Chat always visible. Heatmap + positions share bottom row. Intuitive for anyone who's used TradingView.</p></div>
+    <div class="note-card"><h4>Trade-offs</h4><p>Center column gets crowded with chart + heatmap + positions stacked. Chart has limited vertical space. Trade bar is buried in watchlist column.</p></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════ -->
+<!-- DIRECTION 2: CHART-DOMINANT -->
+<!-- ════════════════════════════════════════════ -->
+<div class="direction-section">
+  <div class="direction-label">
+    <span class="num">DIR 02</span>
+    <h2>Chart Dominant</h2>
+    <span class="tag">Large chart · Tabbed portfolio · Chat overlay</span>
+  </div>
+
+  <div class="mockup-frame">
+    <div class="d1-header">
+      <span class="d1-logo">FINALLY</span>
+      <div class="d1-stat"><span class="d1-stat-label">Portfolio</span><span class="d1-stat-val green mono">$12,841.50</span></div>
+      <div class="d1-stat"><span class="d1-stat-label">Cash</span><span class="d1-stat-val mono">$4,220.00</span></div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:16px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <input class="d1-trade-input" value="AAPL" style="width:60px;background:var(--bg)">
+          <input class="d1-trade-input" value="10" style="width:44px;background:var(--bg)">
+          <button class="btn-buy">BUY</button>
+          <button class="btn-sell">SELL</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;"><div class="d1-dot"></div><span class="muted" style="font-size:10px">LIVE</span></div>
+      </div>
+    </div>
+
+    <div class="d2-body">
+      <!-- Left: compact watchlist -->
+      <div class="d2-left">
+        <div class="d1-panel-title">Watchlist</div>
+        <div style="padding:0;">
+          <div class="d1-ticker-row active" style="padding:6px 12px;">
+            <div><div class="d1-ticker-sym">AAPL</div></div>
+            <div><div class="d1-ticker-price green">191.40</div><div class="d1-ticker-chg green">+1.2%</div></div>
+          </div>
+          <div class="d1-ticker-row" style="padding:6px 12px;">
+            <div><div class="d1-ticker-sym">NVDA</div></div>
+            <div><div class="d1-ticker-price green">875.20</div><div class="d1-ticker-chg green">+2.8%</div></div>
+          </div>
+          <div class="d1-ticker-row" style="padding:6px 12px;">
+            <div><div class="d1-ticker-sym">TSLA</div></div>
+            <div><div class="d1-ticker-price red">241.30</div><div class="d1-ticker-chg red">-1.4%</div></div>
+          </div>
+          <div class="d1-ticker-row" style="padding:6px 12px;">
+            <div><div class="d1-ticker-sym">MSFT</div></div>
+            <div><div class="d1-ticker-price green">418.60</div><div class="d1-ticker-chg green">+0.6%</div></div>
+          </div>
+          <div class="d1-ticker-row" style="padding:6px 12px;">
+            <div><div class="d1-ticker-sym">GOOGL</div></div>
+            <div><div class="d1-ticker-price red">174.80</div><div class="d1-ticker-chg red">-0.3%</div></div>
+          </div>
+          <div class="d1-ticker-row" style="padding:6px 12px;">
+            <div><div class="d1-ticker-sym">META</div></div>
+            <div><div class="d1-ticker-price green">503.10</div><div class="d1-ticker-chg green">+3.1%</div></div>
+          </div>
+          <div class="d1-ticker-row" style="padding:6px 12px;">
+            <div><div class="d1-ticker-sym">AMZN</div></div>
+            <div><div class="d1-ticker-price green">182.40</div><div class="d1-ticker-chg green">+0.9%</div></div>
+          </div>
+          <div class="d1-ticker-row" style="padding:6px 12px;">
+            <div><div class="d1-ticker-sym">JPM</div></div>
+            <div><div class="d1-ticker-price green">198.50</div><div class="d1-ticker-chg green">+0.4%</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: large chart + tabbed panel -->
+      <div class="d2-center">
+        <div class="d2-chart-big" style="height:340px;flex:none">
+          <div style="position:absolute;top:16px;left:16px;z-index:1">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700">AAPL <span style="font-size:13px;color:var(--muted);font-weight:400">Apple Inc.</span></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:var(--green)">$191.40</div>
+            <div style="color:var(--green);font-family:'JetBrains Mono',monospace;font-size:13px">▲ +2.28 (+1.2%)</div>
+          </div>
+          <svg viewBox="0 0 800 280" style="position:absolute;bottom:0;left:0;right:0;width:100%;opacity:0.65">
+            <defs>
+              <linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3fb950" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#3fb950" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,240 C50,230 100,210 150,200 C200,190 250,180 300,165 C350,150 400,155 450,135 C500,115 550,120 600,100 C650,80 700,90 750,70 C770,62 785,58 800,52" fill="none" stroke="#3fb950" stroke-width="2"/>
+            <path d="M0,240 C50,230 100,210 150,200 C200,190 250,180 300,165 C350,150 400,155 450,135 C500,115 550,120 600,100 C650,80 700,90 750,70 C770,62 785,58 800,52 L800,280 L0,280 Z" fill="url(#cg2)"/>
+          </svg>
+        </div>
+        <!-- Tabs below chart -->
+        <div class="d2-tab-bar">
+          <div class="d2-tab active">Positions</div>
+          <div class="d2-tab">Heatmap</div>
+          <div class="d2-tab">P&L History</div>
+        </div>
+        <div class="d2-panel-content">
+          <table class="pos-table" style="width:100%">
+            <thead><tr><th>Ticker</th><th>Qty</th><th>Avg Cost</th><th>Current</th><th>P&L</th><th>Change</th></tr></thead>
+            <tbody>
+              <tr><td>AAPL</td><td>15</td><td>185.20</td><td>191.40</td><td class="green">+$93.00</td><td class="green">+3.3%</td></tr>
+              <tr><td>NVDA</td><td>5</td><td>820.00</td><td>875.20</td><td class="green">+$276.00</td><td class="green">+6.7%</td></tr>
+              <tr><td>TSLA</td><td>8</td><td>248.00</td><td>241.30</td><td class="red">-$53.60</td><td class="red">-2.7%</td></tr>
+              <tr><td>META</td><td>3</td><td>480.00</td><td>503.10</td><td class="green">+$69.30</td><td class="green">+4.8%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right: chat -->
+      <div class="d2-right">
+        <div class="d2-chat-area">
+          <div class="d1-panel-title">FinAlly AI</div>
+          <div class="d1-chat-messages" style="flex:1;padding:12px;">
+            <div class="chat-msg ai">
+              <div class="role">FinAlly</div>
+              Portfolio up <span class="green">+2.3%</span> today. NVDA leading gains. Your tech concentration is high — want me to rebalance?
+            </div>
+            <div class="chat-msg user"><div class="role">You</div>Yes, reduce tech by 15%</div>
+            <div class="chat-msg ai">
+              <div class="role">FinAlly</div>
+              Selling 2 NVDA to reduce tech weight from 78% to 63%.
+              <div class="trade-confirm">✓ NVDA SELL 2 @ $875.20</div>
+            </div>
+          </div>
+          <div class="d1-chat-input">
+            <div class="d1-input-row">
+              <input class="d1-input" placeholder="Ask FinAlly...">
+              <button class="d1-send-btn">↑</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="direction-notes">
+    <div class="note-card"><h4>Layout</h4><p>Trade bar in header. Large chart dominates center. Tabbed panel below chart for positions/heatmap/history. Watchlist is compact (prices only).</p></div>
+    <div class="note-card"><h4>Strengths</h4><p>Chart gets maximum space — best for technical analysis focus. Header trade bar is always accessible. Tabs reduce visual complexity below the chart.</p></div>
+    <div class="note-card"><h4>Trade-offs</h4><p>Sparklines dropped from watchlist. Heatmap hidden behind tab by default. Less information visible at once — more clicking required.</p></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════ -->
+<!-- DIRECTION 3: AI COMMAND CENTER -->
+<!-- ════════════════════════════════════════════ -->
+<div class="direction-section">
+  <div class="direction-label">
+    <span class="num">DIR 03</span>
+    <h2>AI Command Center</h2>
+    <span class="tag">Prominent chat · Wide AI panel · Data as context</span>
+  </div>
+
+  <div class="mockup-frame">
+    <div class="d1-header" style="background:linear-gradient(90deg, #0d1117, #12101a)">
+      <span class="d1-logo" style="color:var(--purple)">FINALLY</span>
+      <div class="d1-stat"><span class="d1-stat-label">Portfolio</span><span class="d1-stat-val green mono">$12,841.50</span></div>
+      <div class="d1-stat"><span class="d1-stat-label">Cash</span><span class="d1-stat-val mono">$4,220.00</span></div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+        <div class="d1-dot" style="background:var(--purple);box-shadow:0 0 6px var(--purple)"></div>
+        <span style="font-size:10px;color:var(--purple)">AI READY</span>
+      </div>
+    </div>
+
+    <div class="d3-body">
+      <!-- Left: watchlist compact -->
+      <div class="d1-watchlist" style="min-width:180px">
+        <div class="d1-panel-title">Market</div>
+        <div class="d1-ticker-row active" style="padding:7px 10px">
+          <div><div class="d1-ticker-sym">AAPL</div><div class="d1-ticker-chg green">+1.2%</div></div>
+          <div class="d1-ticker-price green">191.40</div>
+        </div>
+        <div class="d1-ticker-row" style="padding:7px 10px">
+          <div><div class="d1-ticker-sym">NVDA</div><div class="d1-ticker-chg green">+2.8%</div></div>
+          <div class="d1-ticker-price green">875.20</div>
+        </div>
+        <div class="d1-ticker-row" style="padding:7px 10px">
+          <div><div class="d1-ticker-sym">TSLA</div><div class="d1-ticker-chg red">-1.4%</div></div>
+          <div class="d1-ticker-price red">241.30</div>
+        </div>
+        <div class="d1-ticker-row" style="padding:7px 10px">
+          <div><div class="d1-ticker-sym">MSFT</div><div class="d1-ticker-chg green">+0.6%</div></div>
+          <div class="d1-ticker-price green">418.60</div>
+        </div>
+        <div class="d1-ticker-row" style="padding:7px 10px">
+          <div><div class="d1-ticker-sym">GOOGL</div><div class="d1-ticker-chg red">-0.3%</div></div>
+          <div class="d1-ticker-price red">174.80</div>
+        </div>
+        <div class="d1-ticker-row" style="padding:7px 10px">
+          <div><div class="d1-ticker-sym">META</div><div class="d1-ticker-chg green">+3.1%</div></div>
+          <div class="d1-ticker-price green">503.10</div>
+        </div>
+        <div class="d1-ticker-row" style="padding:7px 10px">
+          <div><div class="d1-ticker-sym">JPM</div><div class="d1-ticker-chg green">+0.4%</div></div>
+          <div class="d1-ticker-price green">198.50</div>
+        </div>
+        <div style="margin-top:auto;border-top:1px solid var(--border);padding:10px">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Trade</div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <input class="d1-trade-input" value="AAPL" style="width:100%;font-size:11px">
+            <input class="d1-trade-input" value="10" style="width:100%;font-size:11px">
+            <div style="display:flex;gap:5px">
+              <button class="btn-buy" style="flex:1;font-size:11px">BUY</button>
+              <button class="btn-sell" style="flex:1;font-size:11px">SELL</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: chart + heatmap -->
+      <div style="display:flex;flex-direction:column;border-right:1px solid var(--border)">
+        <div style="flex:1;position:relative;border-bottom:1px solid var(--border)">
+          <div style="position:absolute;top:12px;left:14px">
+            <div class="mono" style="font-size:18px;font-weight:700">AAPL <span style="font-size:11px;color:var(--muted);font-weight:400">Apple Inc.</span></div>
+            <div class="mono" style="font-size:26px;font-weight:600;color:var(--green)">$191.40</div>
+          </div>
+          <svg viewBox="0 0 500 200" style="position:absolute;bottom:0;left:0;width:100%;opacity:0.6">
+            <defs><linearGradient id="cg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3fb950" stop-opacity="0.25"/><stop offset="100%" stop-color="#3fb950" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0,170 C40,162 80,148 120,140 C160,132 200,128 240,115 C280,102 320,108 360,92 C400,76 440,82 480,65 L500,60" fill="none" stroke="#3fb950" stroke-width="2"/>
+            <path d="M0,170 C40,162 80,148 120,140 C160,132 200,128 240,115 C280,102 320,108 360,92 C400,76 440,82 480,65 L500,60 L500,200 L0,200Z" fill="url(#cg3)"/>
+          </svg>
+        </div>
+        <div style="height:180px;padding:10px;">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;font-weight:600">Portfolio Heatmap</div>
+          <div style="display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;height:140px">
+            <div style="grid-row:span 2;background:rgba(63,185,80,0.5);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:rgba(255,255,255,0.9)">NVDA</span><span style="font-size:10px;color:rgba(255,255,255,0.7)">+2.8%</span></div>
+            <div style="background:rgba(63,185,80,0.35);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:rgba(255,255,255,0.9)">AAPL</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">+1.2%</span></div>
+            <div style="background:rgba(63,185,80,0.45);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:rgba(255,255,255,0.9)">META</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">+3.1%</span></div>
+            <div style="background:rgba(248,81,73,0.4);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:rgba(255,255,255,0.9)">TSLA</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">-1.4%</span></div>
+            <div style="background:rgba(63,185,80,0.2);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:rgba(255,255,255,0.9)">MSFT</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">+0.6%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: WIDE chat panel -->
+      <div class="d3-chat-prominent">
+        <div class="d3-chat-header">
+          <div class="ai-avatar">F</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">FinAlly</div>
+            <div style="font-size:10px;color:var(--purple)">AI Trading Assistant</div>
+          </div>
+        </div>
+        <div style="flex:1;padding:12px;overflow:hidden;display:flex;flex-direction:column;gap:12px">
+          <div class="chat-msg ai">
+            <div class="role">FinAlly</div>
+            Good morning! Portfolio is up <span class="green">+2.3%</span>. NVDA is leading — want a full breakdown?
+          </div>
+          <div class="chat-msg user"><div class="role">You</div>Buy 5 more NVDA</div>
+          <div class="chat-msg ai">
+            <div class="role">FinAlly</div>
+            Adding 5 NVDA at current price. This brings your NVDA position to 10 shares (~34% of portfolio).
+            <div class="trade-confirm">✓ NVDA BUY 5 @ $875.20 · -$4,376</div>
+          </div>
+          <div class="chat-msg user"><div class="role">You</div>What's my biggest risk?</div>
+          <div class="chat-msg ai">
+            <div class="role">FinAlly</div>
+            Concentration risk. 67% in NVDA alone after this trade. Consider diversifying — want me to suggest a rebalance?
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border);padding:10px;">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:8px;">
+            <input style="flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;font-family:Inter,sans-serif" placeholder="Ask FinAlly to analyze or trade...">
+            <button class="d1-send-btn" style="border-radius:4px;padding:5px 12px">↑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="direction-notes">
+    <div class="note-card"><h4>Layout</h4><p>Wide right panel (320px) makes the AI chat the visual centerpiece. Purple accent reinforces AI identity. Chart and heatmap share center. Watchlist compact with trade section.</p></div>
+    <div class="note-card"><h4>Strengths</h4><p>Best showcases the AI capability — the defining feature. Chat panel has room for rich conversation history. AI identity is clearly distinct from user with avatar.</p></div>
+    <div class="note-card"><h4>Trade-offs</h4><p>Less space for chart. Data panels feel secondary. May feel "chatbot-y" rather than "trading terminal-y" — depends on audience expectations.</p></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════ -->
+<!-- DIRECTION 4: FOUR-QUADRANT DASHBOARD -->
+<!-- ════════════════════════════════════════════ -->
+<div class="direction-section">
+  <div class="direction-label">
+    <span class="num">DIR 04</span>
+    <h2>Four-Quadrant Dashboard</h2>
+    <span class="tag">Grid layout · All panels equal · Bloomberg-style</span>
+  </div>
+
+  <div class="mockup-frame">
+    <div class="d1-header">
+      <span class="d1-logo">FINALLY</span>
+      <div class="d1-stat"><span class="d1-stat-label">Portfolio Value</span><span class="d1-stat-val green mono">$12,841.50</span></div>
+      <div class="d1-stat"><span class="d1-stat-label">Cash</span><span class="d1-stat-val mono">$4,220.00</span></div>
+      <div class="d1-stat"><span class="d1-stat-label">Day P&L</span><span class="d1-stat-val green mono">+$284.10</span></div>
+      <div class="d1-stat"><span class="d1-stat-label">Positions</span><span class="d1-stat-val mono">4</span></div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:6px"><div class="d1-dot"></div><span class="muted" style="font-size:10px">LIVE</span></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:220px 1fr 1fr 260px;height:560px;">
+      <!-- Col 1: watchlist -->
+      <div style="border-right:1px solid var(--border);display:flex;flex-direction:column;">
+        <div class="d1-panel-title">Watchlist</div>
+        <div class="d1-ticker-row active" style="padding:7px 12px">
+          <div><div class="d1-ticker-sym">AAPL</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,18 10,14 20,12 30,9 40,7 50,5" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">191.40</div><div class="d1-ticker-chg green">+1.2%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row" style="padding:7px 12px">
+          <div><div class="d1-ticker-sym">NVDA</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,16 10,12 20,9 30,7 40,4 50,3" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">875.20</div><div class="d1-ticker-chg green">+2.8%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row" style="padding:7px 12px">
+          <div><div class="d1-ticker-sym">TSLA</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,6 10,9 20,11 30,13 40,15 50,16" fill="none" stroke="#f85149" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price red">241.30</div><div class="d1-ticker-chg red">-1.4%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row" style="padding:7px 12px">
+          <div><div class="d1-ticker-sym">MSFT</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,14 10,12 20,11 30,10 40,9 50,8" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">418.60</div><div class="d1-ticker-chg green">+0.6%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row" style="padding:7px 12px">
+          <div><div class="d1-ticker-sym">META</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,15 10,12 20,9 30,7 40,5 50,4" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">503.10</div><div class="d1-ticker-chg green">+3.1%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row" style="padding:7px 12px">
+          <div><div class="d1-ticker-sym">JPM</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,12 10,11 20,12 30,10 40,11 50,10" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">198.50</div><div class="d1-ticker-chg green">+0.4%</div>
+          </div>
+        </div>
+        <div style="margin-top:auto;border-top:1px solid var(--border);padding:10px;">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">Trade</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <input class="d1-trade-input" value="AAPL" style="width:54px">
+            <input class="d1-trade-input" value="10" style="width:40px">
+            <button class="btn-buy">BUY</button>
+            <button class="btn-sell">SELL</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 2: chart -->
+      <div style="border-right:1px solid var(--border);position:relative">
+        <div class="d1-panel-title">AAPL — Price Chart</div>
+        <div style="position:absolute;top:40px;left:12px">
+          <div class="mono" style="font-size:24px;font-weight:700;color:var(--green)">$191.40</div>
+          <div class="mono" style="font-size:11px;color:var(--green)">▲ +1.2% today</div>
+        </div>
+        <svg viewBox="0 0 400 440" style="position:absolute;bottom:0;left:0;width:100%;opacity:0.6">
+          <defs><linearGradient id="cg4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3fb950" stop-opacity="0.25"/><stop offset="100%" stop-color="#3fb950" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0,380 C40,365 80,345 120,330 C160,315 200,308 240,288 C280,268 320,275 360,252 L400,240" fill="none" stroke="#3fb950" stroke-width="2"/>
+          <path d="M0,380 C40,365 80,345 120,330 C160,315 200,308 240,288 C280,268 320,275 360,252 L400,240 L400,440 L0,440Z" fill="url(#cg4)"/>
+        </svg>
+      </div>
+
+      <!-- Col 3: heatmap + positions -->
+      <div style="border-right:1px solid var(--border);display:flex;flex-direction:column">
+        <div style="flex:1;padding:10px;border-bottom:1px solid var(--border)">
+          <div class="d1-panel-title" style="padding:0 0 8px;border:none">Heatmap</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:4px;height:220px">
+            <div style="grid-column:span 2;background:rgba(63,185,80,0.5);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.9)">NVDA</span><span style="font-size:10px;color:rgba(255,255,255,0.7)">+2.8%</span></div>
+            <div style="background:rgba(63,185,80,0.35);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.9)">META</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">+3.1%</span></div>
+            <div style="background:rgba(63,185,80,0.3);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.9)">AAPL</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">+1.2%</span></div>
+            <div style="background:rgba(248,81,73,0.4);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.9)">TSLA</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">-1.4%</span></div>
+            <div style="background:rgba(63,185,80,0.18);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.9)">MSFT</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">+0.6%</span></div>
+            <div style="grid-column:span 3;background:rgba(63,185,80,0.12);border-radius:3px;display:flex;align-items:center;justify-content:center;"><span class="mono" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.9)">P&L TODAY: <span style="color:var(--green)">+$284.10</span></span></div>
+          </div>
+        </div>
+        <div style="flex:1;padding:10px;overflow:hidden">
+          <div class="d1-panel-title" style="padding:0 0 6px;border:none">Positions</div>
+          <table class="pos-table" style="width:100%">
+            <thead><tr><th>Sym</th><th>Qty</th><th>Cost</th><th>P&L</th></tr></thead>
+            <tbody>
+              <tr><td>AAPL</td><td>15</td><td>185.20</td><td class="green">+$93</td></tr>
+              <tr><td>NVDA</td><td>5</td><td>820.00</td><td class="green">+$276</td></tr>
+              <tr><td>TSLA</td><td>8</td><td>248.00</td><td class="red">-$54</td></tr>
+              <tr><td>META</td><td>3</td><td>480.00</td><td class="green">+$69</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Col 4: chat -->
+      <div style="display:flex;flex-direction:column">
+        <div class="d1-panel-title">FinAlly AI</div>
+        <div style="flex:1;padding:12px;display:flex;flex-direction:column;gap:10px;overflow:hidden">
+          <div class="chat-msg ai"><div class="role">FinAlly</div>Portfolio looks healthy. NVDA leading with +$276 gain. Any trades you want to make?</div>
+          <div class="chat-msg user"><div class="role">You</div>Add PYPL to watchlist</div>
+          <div class="chat-msg ai">
+            <div class="role">FinAlly</div>
+            Added PayPal to your watchlist. Currently trading at $68.20, down -0.8% today.
+            <div class="trade-confirm" style="color:var(--blue);border-color:rgba(32,157,215,0.3);background:rgba(32,157,215,0.08)">✓ PYPL added to watchlist</div>
+          </div>
+        </div>
+        <div class="d1-chat-input">
+          <div class="d1-input-row">
+            <input class="d1-input" placeholder="Ask or command...">
+            <button class="d1-send-btn">↑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="direction-notes">
+    <div class="note-card"><h4>Layout</h4><p>True four-column grid: watchlist | chart | heatmap+positions | chat. Maximum information density. Every panel visible simultaneously. Most Bloomberg-like.</p></div>
+    <div class="note-card"><h4>Strengths</h4><p>Nothing hidden behind tabs. Professional, dense, impressive on first load. All panels contribute simultaneously to situational awareness.</p></div>
+    <div class="note-card"><h4>Trade-offs</h4><p>Each panel is narrower — chart especially constrained. Requires very wide monitor for comfort. Most complex layout to implement responsively.</p></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════ -->
+<!-- DIRECTION 5: MINIMAL / FOCUSED -->
+<!-- ════════════════════════════════════════════ -->
+<div class="direction-section">
+  <div class="direction-label">
+    <span class="num">DIR 05</span>
+    <h2>Minimal Focused</h2>
+    <span class="tag">Clean · Two columns · Bottom strip · Spacious</span>
+  </div>
+
+  <div class="mockup-frame">
+    <div class="d1-header" style="background:var(--bg);border-bottom:1px solid var(--border);">
+      <span class="d1-logo" style="letter-spacing:3px;font-size:13px">FIN<span style="color:var(--yellow)">ALLY</span></span>
+      <div style="margin-left:24px;display:flex;align-items:center;gap:4px">
+        <span class="mono" style="font-size:22px;font-weight:600;color:var(--green)">$12,841.50</span>
+        <span class="mono" style="font-size:12px;color:var(--green)">+2.3%</span>
+      </div>
+      <span class="muted" style="font-size:12px;margin-left:16px">Cash: <span class="mono" style="color:var(--text)">$4,220.00</span></span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+        <div style="display:flex;gap:6px;align-items:center">
+          <input class="d1-trade-input" value="AAPL" style="width:60px;background:var(--surface)">
+          <input class="d1-trade-input" value="10" style="width:44px;background:var(--surface)">
+          <button class="btn-buy">BUY</button>
+          <button class="btn-sell">SELL</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px"><div class="d1-dot"></div><span class="muted" style="font-size:10px">LIVE</span></div>
+      </div>
+    </div>
+
+    <div class="d5-body">
+      <!-- Left: wide watchlist -->
+      <div class="d5-left" style="display:flex;flex-direction:column;">
+        <div class="d1-panel-title">Watchlist</div>
+        <div class="d1-ticker-row active">
+          <div><div class="d1-ticker-sym">AAPL</div><div class="d1-ticker-name muted">Apple Inc.</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,18 10,14 20,12 30,9 40,7 50,5" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">191.40</div><div class="d1-ticker-chg green">+1.2%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row">
+          <div><div class="d1-ticker-sym">NVDA</div><div class="d1-ticker-name muted">NVIDIA Corp.</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,16 10,12 20,9 30,7 40,4 50,3" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">875.20</div><div class="d1-ticker-chg green">+2.8%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row">
+          <div><div class="d1-ticker-sym">TSLA</div><div class="d1-ticker-name muted">Tesla Inc.</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,6 10,9 20,11 30,13 40,15 50,16" fill="none" stroke="#f85149" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price red">241.30</div><div class="d1-ticker-chg red">-1.4%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row">
+          <div><div class="d1-ticker-sym">MSFT</div><div class="d1-ticker-name muted">Microsoft</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,14 10,12 20,11 30,10 40,9 50,8" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">418.60</div><div class="d1-ticker-chg green">+0.6%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row">
+          <div><div class="d1-ticker-sym">META</div><div class="d1-ticker-name muted">Meta Platforms</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,15 10,12 20,9 30,7 40,5 50,4" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">503.10</div><div class="d1-ticker-chg green">+3.1%</div>
+          </div>
+        </div>
+        <div class="d1-ticker-row">
+          <div><div class="d1-ticker-sym">JPM</div><div class="d1-ticker-name muted">JPMorgan Chase</div></div>
+          <div>
+            <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,12 10,11 20,12 30,10 40,11 50,10" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+            <div class="d1-ticker-price green">198.50</div><div class="d1-ticker-chg green">+0.4%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: chart + bottom strip -->
+      <div class="d5-right">
+        <div class="d5-main" style="position:relative">
+          <div style="position:absolute;top:16px;left:16px;z-index:1">
+            <div class="mono" style="font-size:20px;font-weight:700">AAPL</div>
+            <div class="mono" style="font-size:30px;font-weight:600;color:var(--green)">$191.40</div>
+            <div class="mono" style="font-size:12px;color:var(--green)">▲ +2.28 (+1.2%)</div>
+          </div>
+          <svg viewBox="0 0 700 320" style="position:absolute;bottom:0;left:0;width:100%;opacity:0.65">
+            <defs><linearGradient id="cg5" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3fb950" stop-opacity="0.2"/><stop offset="100%" stop-color="#3fb950" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0,280 C60,268 120,248 180,235 C240,222 300,215 360,198 C420,181 480,188 540,168 C600,148 650,155 700,138" fill="none" stroke="#3fb950" stroke-width="2"/>
+            <path d="M0,280 C60,268 120,248 180,235 C240,222 300,215 360,198 C420,181 480,188 540,168 C600,148 650,155 700,138 L700,320 L0,320Z" fill="url(#cg5)"/>
+          </svg>
+        </div>
+        <div class="d5-bottom">
+          <div class="d5-panel">
+            <div class="d1-panel-title" style="padding:0 0 8px;border:none">Portfolio Heatmap</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;height:120px">
+              <div style="grid-column:span 2;background:rgba(63,185,80,0.5);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.9)">NVDA</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">+2.8%</span></div>
+              <div style="background:rgba(63,185,80,0.45);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.9)">META</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">+3.1%</span></div>
+              <div style="background:rgba(63,185,80,0.3);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.9)">AAPL</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">+1.2%</span></div>
+              <div style="background:rgba(248,81,73,0.4);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.9)">TSLA</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">-1.4%</span></div>
+              <div style="background:rgba(63,185,80,0.18);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.9)">MSFT</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">+0.6%</span></div>
+            </div>
+          </div>
+          <div class="d5-panel">
+            <div class="d1-panel-title" style="padding:0 0 8px;border:none">Positions</div>
+            <table class="pos-table" style="width:100%">
+              <thead><tr><th>Sym</th><th>Qty</th><th>P&L</th></tr></thead>
+              <tbody>
+                <tr><td>AAPL</td><td>15</td><td class="green">+$93</td></tr>
+                <tr><td>NVDA</td><td>5</td><td class="green">+$276</td></tr>
+                <tr><td>TSLA</td><td>8</td><td class="red">-$54</td></tr>
+                <tr><td>META</td><td>3</td><td class="green">+$69</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="d5-panel" style="border-right:none;display:flex;flex-direction:column;gap:8px">
+            <div class="d1-panel-title" style="padding:0 0 8px;border:none">FinAlly AI</div>
+            <div class="chat-msg ai" style="font-size:11px">
+              <div class="role" style="font-size:8px">FinAlly</div>
+              Up <span class="green">+2.3%</span>. NVDA leading. Want to rebalance?
+            </div>
+            <div style="margin-top:auto;display:flex;gap:6px">
+              <input class="d1-input" placeholder="Ask FinAlly..." style="font-size:11px">
+              <button class="d1-send-btn" style="padding:5px 10px">↑</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="direction-notes">
+    <div class="note-card"><h4>Layout</h4><p>Two columns: watchlist left, everything else right. Chart dominates top. Bottom strip holds heatmap, positions, and a compact chat preview. Trade bar in header.</p></div>
+    <div class="note-card"><h4>Strengths</h4><p>Cleanest visual hierarchy. Chart gets maximum space. Header-level trade bar is always accessible. Least cognitive load on first view.</p></div>
+    <div class="note-card"><h4>Trade-offs</h4><p>Chat is minimized — doesn't showcase the AI feature prominently. Bottom strip is cramped. Users need to expand chat to get full conversation experience.</p></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════ -->
+<!-- DIRECTION 6: WIDE WATCHLIST / DATA TABLE -->
+<!-- ════════════════════════════════════════════ -->
+<div class="direction-section">
+  <div class="direction-label">
+    <span class="num">DIR 06</span>
+    <h2>Wide Watchlist / Data Table</h2>
+    <span class="tag">Scannable data · Full-width ticker rows · Chat integrated</span>
+  </div>
+
+  <div class="mockup-frame">
+    <div class="d1-header">
+      <span class="d1-logo">FINALLY</span>
+      <div class="d1-stat"><span class="d1-stat-label">Portfolio</span><span class="d1-stat-val green mono">$12,841.50</span></div>
+      <div class="d1-stat"><span class="d1-stat-label">Cash</span><span class="d1-stat-val mono">$4,220.00</span></div>
+      <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+        <input class="d1-trade-input" value="AAPL" style="width:60px">
+        <input class="d1-trade-input" value="10" style="width:44px">
+        <button class="btn-buy">BUY</button>
+        <button class="btn-sell">SELL</button>
+        <div style="margin-left:8px;display:flex;align-items:center;gap:5px"><div class="d1-dot"></div><span class="muted" style="font-size:10px">LIVE</span></div>
+      </div>
+    </div>
+
+    <div class="d6-body">
+      <!-- Left: wide watchlist with rich rows -->
+      <div class="d6-left">
+        <div class="d1-panel-title">
+          <span>Watchlist</span>
+          <div style="display:grid;grid-template-columns:60px 1fr 70px 50px 60px;padding:4px 12px 0;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;gap:4px">
+            <span>Symbol</span><span></span><span>Price</span><span>Chg%</span><span>Sparkline</span>
+          </div>
+        </div>
+        <div class="d6-watchlist-row" style="background:rgba(32,157,215,0.06);border-left:2px solid var(--blue)">
+          <span class="mono" style="font-size:12px;font-weight:700;color:var(--text)">AAPL</span>
+          <span style="font-size:10px;color:var(--muted)">Apple Inc.</span>
+          <span class="mono green" style="font-size:12px">191.40</span>
+          <span class="mono green" style="font-size:10px">+1.2%</span>
+          <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,18 10,14 20,12 30,9 40,7 50,5" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+        </div>
+        <div class="d6-watchlist-row">
+          <span class="mono" style="font-size:12px;font-weight:700">NVDA</span>
+          <span style="font-size:10px;color:var(--muted)">NVIDIA</span>
+          <span class="mono green" style="font-size:12px">875.20</span>
+          <span class="mono green" style="font-size:10px">+2.8%</span>
+          <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,16 10,12 20,9 30,7 40,4 50,3" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+        </div>
+        <div class="d6-watchlist-row">
+          <span class="mono" style="font-size:12px;font-weight:700">TSLA</span>
+          <span style="font-size:10px;color:var(--muted)">Tesla</span>
+          <span class="mono red" style="font-size:12px">241.30</span>
+          <span class="mono red" style="font-size:10px">-1.4%</span>
+          <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,6 10,9 20,11 30,13 40,15 50,16" fill="none" stroke="#f85149" stroke-width="1.5"/></svg>
+        </div>
+        <div class="d6-watchlist-row">
+          <span class="mono" style="font-size:12px;font-weight:700">MSFT</span>
+          <span style="font-size:10px;color:var(--muted)">Microsoft</span>
+          <span class="mono green" style="font-size:12px">418.60</span>
+          <span class="mono green" style="font-size:10px">+0.6%</span>
+          <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,14 10,12 20,11 30,10 40,9 50,8" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+        </div>
+        <div class="d6-watchlist-row">
+          <span class="mono" style="font-size:12px;font-weight:700">META</span>
+          <span style="font-size:10px;color:var(--muted)">Meta</span>
+          <span class="mono green" style="font-size:12px">503.10</span>
+          <span class="mono green" style="font-size:10px">+3.1%</span>
+          <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,15 10,12 20,9 30,7 40,5 50,4" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+        </div>
+        <div class="d6-watchlist-row">
+          <span class="mono" style="font-size:12px;font-weight:700">GOOGL</span>
+          <span style="font-size:10px;color:var(--muted)">Alphabet</span>
+          <span class="mono red" style="font-size:12px">174.80</span>
+          <span class="mono red" style="font-size:10px">-0.3%</span>
+          <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,10 10,12 20,11 30,13 40,12 50,14" fill="none" stroke="#f85149" stroke-width="1.5"/></svg>
+        </div>
+        <div class="d6-watchlist-row">
+          <span class="mono" style="font-size:12px;font-weight:700">AMZN</span>
+          <span style="font-size:10px;color:var(--muted)">Amazon</span>
+          <span class="mono green" style="font-size:12px">182.40</span>
+          <span class="mono green" style="font-size:10px">+0.9%</span>
+          <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,12 10,11 20,13 30,11 40,10 50,9" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+        </div>
+        <div class="d6-watchlist-row">
+          <span class="mono" style="font-size:12px;font-weight:700">JPM</span>
+          <span style="font-size:10px;color:var(--muted)">JPMorgan</span>
+          <span class="mono green" style="font-size:12px">198.50</span>
+          <span class="mono green" style="font-size:10px">+0.4%</span>
+          <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,14 10,13 20,14 30,12 40,13 50,11" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+        </div>
+        <div class="d6-watchlist-row">
+          <span class="mono" style="font-size:12px;font-weight:700">V</span>
+          <span style="font-size:10px;color:var(--muted)">Visa Inc.</span>
+          <span class="mono green" style="font-size:12px">274.60</span>
+          <span class="mono green" style="font-size:10px">+0.7%</span>
+          <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,13 10,12 20,11 30,10 40,11 50,10" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+        </div>
+        <div class="d6-watchlist-row">
+          <span class="mono" style="font-size:12px;font-weight:700">NFLX</span>
+          <span style="font-size:10px;color:var(--muted)">Netflix</span>
+          <span class="mono green" style="font-size:12px">625.80</span>
+          <span class="mono green" style="font-size:10px">+1.5%</span>
+          <svg class="sparkline-svg" viewBox="0 0 52 22"><polyline points="2,16 10,14 20,12 30,10 40,8 50,6" fill="none" stroke="#3fb950" stroke-width="1.5"/></svg>
+        </div>
+      </div>
+
+      <!-- Right: chart + bottom -->
+      <div class="d6-right">
+        <div class="d6-chart">
+          <div style="position:absolute;top:12px;left:14px;z-index:1">
+            <div class="mono" style="font-size:18px;font-weight:700">AAPL <span style="font-size:11px;color:var(--muted);font-weight:400">Apple Inc.</span></div>
+            <div class="mono" style="font-size:28px;font-weight:600;color:var(--green)">$191.40</div>
+            <div class="mono" style="font-size:11px;color:var(--green)">▲ +1.2% today</div>
+          </div>
+          <svg viewBox="0 0 800 300" style="position:absolute;bottom:0;left:0;width:100%;opacity:0.65">
+            <defs><linearGradient id="cg6" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3fb950" stop-opacity="0.22"/><stop offset="100%" stop-color="#3fb950" stop-opacity="0"/></linearGradient></defs>
+            <path d="M0,260 C60,248 120,228 180,215 C240,202 300,195 360,178 C420,161 480,168 540,148 C600,128 650,138 700,118 C730,108 760,98 800,88" fill="none" stroke="#3fb950" stroke-width="2"/>
+            <path d="M0,260 C60,248 120,228 180,215 C240,202 300,195 360,178 C420,161 480,168 540,148 C600,128 650,138 700,118 C730,108 760,98 800,88 L800,300 L0,300Z" fill="url(#cg6)"/>
+          </svg>
+        </div>
+        <div class="d6-bottom">
+          <div class="d6-positions" style="padding:10px">
+            <div class="d1-panel-title" style="padding:0 0 8px;border:none">Positions &amp; Heatmap</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <table class="pos-table">
+                <thead><tr><th>Sym</th><th>Qty</th><th>Avg</th><th>P&L</th></tr></thead>
+                <tbody>
+                  <tr><td>AAPL</td><td>15</td><td>185.20</td><td class="green">+$93</td></tr>
+                  <tr><td>NVDA</td><td>5</td><td>820.00</td><td class="green">+$276</td></tr>
+                  <tr><td>TSLA</td><td>8</td><td>248.00</td><td class="red">-$54</td></tr>
+                  <tr><td>META</td><td>3</td><td>480.00</td><td class="green">+$69</td></tr>
+                </tbody>
+              </table>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;height:130px">
+                <div style="grid-column:span 2;background:rgba(63,185,80,0.5);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.9)">NVDA +2.8%</span></div>
+                <div style="background:rgba(63,185,80,0.35);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.9)">AAPL</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">+1.2%</span></div>
+                <div style="background:rgba(248,81,73,0.4);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.9)">TSLA</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">-1.4%</span></div>
+                <div style="background:rgba(63,185,80,0.45);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column"><span class="mono" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.9)">META</span><span style="font-size:9px;color:rgba(255,255,255,0.7)">+3.1%</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="d6-chat" style="display:flex;flex-direction:column;padding:10px;border-left:1px solid var(--border)">
+            <div class="d1-panel-title" style="padding:0 0 8px;border:none">FinAlly AI</div>
+            <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:8px">
+              <div class="chat-msg ai" style="font-size:11px"><div class="role" style="font-size:8px">FinAlly</div>Portfolio +2.3%. NVDA leading gains at +$276. Any orders?</div>
+              <div class="chat-msg user" style="font-size:11px"><div class="role" style="font-size:8px">You</div>Sell 3 TSLA</div>
+              <div class="chat-msg ai" style="font-size:11px">
+                <div class="role" style="font-size:8px">FinAlly</div>
+                Sold 3 TSLA at $241.30.
+                <div class="trade-confirm" style="font-size:9px;padding:4px 6px;margin-top:4px">✓ TSLA SELL 3 @ $241.30</div>
+              </div>
+            </div>
+            <div style="margin-top:8px;display:flex;gap:5px">
+              <input class="d1-input" style="font-size:11px" placeholder="Ask or trade...">
+              <button class="d1-send-btn" style="padding:5px 10px;font-size:11px">↑</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="direction-notes">
+    <div class="note-card"><h4>Layout</h4><p>Wide left watchlist (320px) with full ticker rows showing symbol, name, price, change %, and sparkline in a scannable table format. All 10 tickers visible at once.</p></div>
+    <div class="note-card"><h4>Strengths</h4><p>Best information density in the watchlist. All tickers readable at a glance without scrolling. Wide format suits the Bloomberg "screener" mental model. Great for market monitoring.</p></div>
+    <div class="note-card"><h4>Trade-offs</h4><p>Less space for chart and chat. Right column feels compressed. Chart height is limited. Best suited for users who watch the whole market more than individual charts.</p></div>
+  </div>
+</div>
+
+
+<!-- Selection guide -->
+<div style="max-width:1400px;margin:0 auto 60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;">
+  <h3 style="color:var(--yellow);font-size:16px;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">Direction Evaluation Guide</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
+    <div>
+      <h4 style="color:var(--text);font-size:12px;font-weight:600;margin-bottom:8px">Best for showcasing AI</h4>
+      <p style="color:var(--muted);font-size:12px;line-height:1.6">→ <span class="yellow">Dir 03</span> (Command Center) or <span class="yellow">Dir 01</span> (Classic). Wide chat panel keeps AI front and center.</p>
+    </div>
+    <div>
+      <h4 style="color:var(--text);font-size:12px;font-weight:600;margin-bottom:8px">Most Bloomberg-like</h4>
+      <p style="color:var(--muted);font-size:12px;line-height:1.6">→ <span class="yellow">Dir 04</span> (Four-Quadrant). Every panel visible simultaneously. Maximum density. Most impressive at first glance.</p>
+    </div>
+    <div>
+      <h4 style="color:var(--text);font-size:12px;font-weight:600;margin-bottom:8px">Best chart experience</h4>
+      <p style="color:var(--muted);font-size:12px;line-height:1.6">→ <span class="yellow">Dir 02</span> (Chart Dominant) or <span class="yellow">Dir 05</span> (Minimal). Chart gets maximum vertical space.</p>
+    </div>
+    <div>
+      <h4 style="color:var(--text);font-size:12px;font-weight:600;margin-bottom:8px">Best watchlist scanability</h4>
+      <p style="color:var(--muted);font-size:12px;line-height:1.6">→ <span class="yellow">Dir 06</span> (Wide Watchlist). All 10 tickers visible with full details in a Bloomberg-style screener format.</p>
+    </div>
+    <div>
+      <h4 style="color:var(--text);font-size:12px;font-weight:600;margin-bottom:8px">Most balanced / recommended</h4>
+      <p style="color:var(--muted);font-size:12px;line-height:1.6">→ <span class="yellow">Dir 01</span> (Classic Terminal). Balanced three panels. Familiar. All features visible. Closest to the PLAN.md spec.</p>
+    </div>
+    <div>
+      <h4 style="color:var(--text);font-size:12px;font-weight:600;margin-bottom:8px">Easiest to implement</h4>
+      <p style="color:var(--muted);font-size:12px;line-height:1.6">→ <span class="yellow">Dir 05</span> (Minimal). Simplest layout. Fewest edge cases. Fastest to implement correctly.</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

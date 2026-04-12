@@ -1,0 +1,77 @@
+# generated: 2026-04-11
+# last_updated: 2026-04-11
+# project: finally
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-04-11
+last_updated: 2026-04-11
+project: finally
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1: Live Market Terminal
+  epic-1: done
+  1-1-backend-foundation-watchlist-api: done
+  1-2-frontend-shell-design-system: done
+  1-3-live-price-stream-zustand-stores: done
+  1-4-watchlist-panel-with-price-flash-sparklines: done
+  1-5-main-chart-ticker-selection: done
+  epic-1-retrospective: done
+
+  # Epic 2: Portfolio Management & Trading
+  epic-2: backlog
+  2-1-portfolio-api-trade-execution: backlog
+  2-2-portfolio-snapshot-background-task: backlog
+  2-3-positions-table-portfolio-header: backlog
+  2-4-trade-bar-ui: backlog
+  2-5-watchlist-management-ui: backlog
+  2-6-portfolio-heatmap: backlog
+  2-7-pnl-history-chart: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: AI Trading Assistant
+  epic-3: backlog
+  3-1-chat-api-with-portfolio-context: backlog
+  3-2-chat-panel-ui: backlog
+  3-3-ai-error-handling-mock-mode: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Deployment & Quality
+  epic-4: backlog
+  4-1-dockerfile-container-build: backlog
+  4-2-makefile-scripts: backlog
+  4-3-playwright-e2e-tests: backlog
+  epic-4-retrospective: optional
