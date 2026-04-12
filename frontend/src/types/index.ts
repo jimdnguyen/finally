@@ -34,3 +34,9 @@ export interface PortfolioSnapshot {
   recorded_at: string
   total_value: number
 }
+
+export interface TradeRequest {
+  ticker: string
+  quantity: number
+  side: 'buy' | 'sell'
+}

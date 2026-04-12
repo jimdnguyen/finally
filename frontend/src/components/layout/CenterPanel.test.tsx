@@ -8,6 +8,10 @@ vi.mock('./MainChart', () => ({
   default: () => <div data-testid="main-chart" />,
 }))
 
+vi.mock('./TradeBar', () => ({
+  default: () => <div data-testid="trade-bar" />,
+}))
+
 vi.mock('./PositionsTable', () => ({
   default: () => <div data-testid="positions-table" />,
 }))
@@ -32,6 +36,11 @@ describe('CenterPanel', () => {
     const wrapper = getByTestId('main-chart').parentElement
     expect(wrapper?.className).toContain('flex-1')
     expect(wrapper?.className).toContain('min-h-0')
+  })
+
+  it('renders TradeBar component', () => {
+    const { getByTestId } = render(<CenterPanel />)
+    expect(getByTestId('trade-bar')).toBeTruthy()
   })
 
   it('renders PositionsTable component', () => {
