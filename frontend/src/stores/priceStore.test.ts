@@ -31,7 +31,7 @@ describe('priceStore', () => {
     usePriceStore.getState().updatePrice(makePriceUpdate('AAPL', 101))
     expect(usePriceStore.getState().sparklines['AAPL']).toEqual([
       { time: FIXED_TIME, value: 100 },
-      { time: FIXED_TIME, value: 101 },
+      { time: FIXED_TIME + 1, value: 101 },
     ])
   })
 

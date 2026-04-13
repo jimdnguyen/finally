@@ -117,8 +117,8 @@ describe('PnLHistoryChart', () => {
     })
     render(<PnLHistoryChart />)
     expect(mockSetData).toHaveBeenCalledWith([
-      { time: '2026-04-12T10:00:00Z', value: 10000 },
-      { time: '2026-04-12T10:00:30Z', value: 10050 },
+      { time: Math.floor(new Date('2026-04-12T10:00:00Z').getTime() / 1000), value: 10000 },
+      { time: Math.floor(new Date('2026-04-12T10:00:30Z').getTime() / 1000), value: 10050 },
     ])
   })
 })

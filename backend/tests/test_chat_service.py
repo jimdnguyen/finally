@@ -116,7 +116,7 @@ async def test_chat_watchlist_add(conn, price_cache, monkeypatch):
                return_value=_mock_llm(payload)):
         result = await process_chat("Watch PYPL", price_cache, conn)
 
-    assert result.watchlist_changes_applied[0]["status"] == "added"
+    assert result.watchlist_changes_applied[0]["status"] == "ok"
     cursor = await conn.execute("SELECT ticker FROM watchlist WHERE ticker = 'PYPL'")
     assert await cursor.fetchone() is not None
 

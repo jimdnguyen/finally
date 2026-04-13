@@ -61,7 +61,8 @@ async def _build_system_prompt(price_cache: PriceCache, conn: aiosqlite.Connecti
     cursor = await conn.execute(
         "SELECT cash_balance FROM users_profile WHERE id = 'default'"
     )
-    cash = (await cursor.fetchone())[0]
+    row = await cursor.fetchone()
+    cash = row[0] if row else 0.0
 
     cursor = await conn.execute(
         "SELECT ticker, quantity, avg_cost FROM positions WHERE user_id = 'default'"
@@ -141,7 +142,7 @@ async def _execute_actions(
                     (str(uuid.uuid4()), ticker_upper, now),
                 )
                 await conn.commit()
-                watchlist_results.append({"ticker": ticker_upper, "status": "added"})
+                watchlist_results.append({"ticker": ticker_upper, "status": "ok"})
             except aiosqlite.IntegrityError:
                 watchlist_results.append({"ticker": ticker_upper, "status": "already_exists"})
         elif change.action == "remove":

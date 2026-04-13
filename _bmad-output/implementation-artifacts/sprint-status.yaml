@@ -63,11 +63,11 @@ development_status:
   epic-2-retrospective: done
 
   # Epic 3: AI Trading Assistant
-  epic-3: in-progress
+  epic-3: done
   3-1-chat-api-with-portfolio-context: done
   3-2-chat-panel-ui: done
   3-3-ai-error-handling-mock-mode: done
-  epic-3-retrospective: optional
+  epic-3-retrospective: done
 
   # Epic 4: Deployment & Quality
   epic-4: backlog
