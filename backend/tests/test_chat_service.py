@@ -184,7 +184,7 @@ async def test_chat_system_prompt_contains_portfolio_context(conn, price_cache, 
     assert "Watchlist:" in content
 
 
-# ─── 9. LLM failure → 502 LLM_ERROR ─────────────────────────────────────────
+# ─── 9. LLM failure → 503 LLM_ERROR ─────────────────────────────────────────
 
 async def test_chat_llm_failure(conn, price_cache, monkeypatch):
     monkeypatch.delenv("LLM_MOCK", raising=False)
@@ -193,5 +193,20 @@ async def test_chat_llm_failure(conn, price_cache, monkeypatch):
         with pytest.raises(HTTPException) as exc_info:
             await process_chat("Hello", price_cache, conn)
 
-    assert exc_info.value.status_code == 502
+    assert exc_info.value.status_code == 503
+    assert exc_info.value.detail["code"] == "LLM_ERROR"
+    assert exc_info.value.detail["error"] == "LLM request failed"
+
+
+# ─── 10. Missing API key → 503 LLM_ERROR (AC4) ───────────────────────────────
+
+async def test_chat_no_api_key(conn, price_cache, monkeypatch):
+    monkeypatch.delenv("LLM_MOCK", raising=False)
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    with patch("app.chat.service.litellm.acompletion",
+               new_callable=AsyncMock, side_effect=Exception("No auth")):
+        with pytest.raises(HTTPException) as exc_info:
+            await process_chat("Hello", price_cache, conn)
+
+    assert exc_info.value.status_code == 503
     assert exc_info.value.detail["code"] == "LLM_ERROR"

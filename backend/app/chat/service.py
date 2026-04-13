@@ -49,8 +49,8 @@ async def process_chat(
         llm_resp = LLMResponse(**parsed)
     except Exception as exc:
         raise HTTPException(
-            status_code=502,
-            detail={"error": "LLM unavailable", "code": "LLM_ERROR"},
+            status_code=503,
+            detail={"error": "LLM request failed", "code": "LLM_ERROR"},
         ) from exc
 
     return await _execute_actions(llm_resp, message, price_cache, conn)

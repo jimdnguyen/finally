@@ -1,5 +1,5 @@
 # generated: 2026-04-11
-# last_updated: 2026-04-13
+# last_updated: 2026-04-14
 # project: finally
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-11
-last_updated: 2026-04-13
+last_updated: 2026-04-14
 project: finally
 project_key: NOKEY
 tracking_system: file-system
@@ -66,7 +66,7 @@ development_status:
   epic-3: in-progress
   3-1-chat-api-with-portfolio-context: done
   3-2-chat-panel-ui: done
-  3-3-ai-error-handling-mock-mode: backlog
+  3-3-ai-error-handling-mock-mode: done
   epic-3-retrospective: optional
 
   # Epic 4: Deployment & Quality

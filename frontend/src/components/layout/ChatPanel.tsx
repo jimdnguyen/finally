@@ -14,7 +14,7 @@ type LogEntry =
   | { type: 'ai-label'; timestamp: string; id: string; loading?: boolean }
   | { type: 'ai'; text: string; id: string }
   | { type: 'exec-ok'; text: string; id: string }
-  | { type: 'exec-fail'; text: string; id: string }
+  | { type: 'exec-fail'; text: string; id: string; retryText?: string }
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -62,7 +62,13 @@ function buildResponseEntries(response: ChatResponse): LogEntry[] {
 // ChatLog
 // ---------------------------------------------------------------------------
 
-function ChatLog({ entries }: { entries: LogEntry[] }) {
+function ChatLog({
+  entries,
+  onRetry,
+}: {
+  entries: LogEntry[]
+  onRetry?: (text: string) => void
+}) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -107,8 +113,16 @@ function ChatLog({ entries }: { entries: LogEntry[] }) {
             )
           case 'exec-fail':
             return (
-              <div key={entry.id} className="text-red-down text-xs pl-2">
-                {entry.text}
+              <div key={entry.id} className="text-red-down text-xs pl-2 flex items-center gap-2">
+                <span>{entry.text}</span>
+                {entry.retryText && (
+                  <button
+                    onClick={() => onRetry?.(entry.retryText!)}
+                    className="text-xs text-blue-primary underline ml-1 hover:no-underline"
+                  >
+                    Retry
+                  </button>
+                )}
               </div>
             )
         }
@@ -211,7 +225,7 @@ function ChatPanelInner() {
       setEntries((prev) =>
         prev
           .map((e) => (e.id === loadingLabelId ? { ...e, loading: false } : e))
-          .concat([{ type: 'exec-fail', text: `Error: ${message}`, id: uid() }])
+          .concat([{ type: 'exec-fail', text: `Error: ${message}`, id: uid(), retryText: text }])
       )
     } finally {
       setPending(false)
@@ -220,7 +234,7 @@ function ChatPanelInner() {
 
   return (
     <aside className="bg-surface border-l border-border flex flex-col h-full">
-      <ChatLog entries={entries} />
+      <ChatLog entries={entries} onRetry={handleSubmit} />
       <ChatInput onSubmit={handleSubmit} disabled={pending} />
     </aside>
   )

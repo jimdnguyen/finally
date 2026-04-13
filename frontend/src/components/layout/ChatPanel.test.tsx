@@ -220,6 +220,41 @@ describe('AC5 — error boundary', () => {
 })
 
 // ---------------------------------------------------------------------------
+// AC6 — Retry button (Story 3.3)
+// ---------------------------------------------------------------------------
+
+describe('AC6 — retry button on error', () => {
+  it('renders Retry button when API call fails', async () => {
+    mockSend.mockRejectedValue(new Error('Network failure'))
+    render(<ChatPanel />)
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'buy AAPL' } })
+    fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' })
+
+    await screen.findByText(/Error: Network failure/i)
+    expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument()
+  })
+
+  it('clicking Retry re-submits the original message', async () => {
+    mockSend
+      .mockRejectedValueOnce(new Error('Network failure'))
+      .mockResolvedValueOnce({ message: 'ok', trades_executed: [], watchlist_changes_applied: [] })
+
+    render(<ChatPanel />)
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'buy AAPL' } })
+    fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' })
+
+    await screen.findByText(/Error: Network failure/i)
+    fireEvent.click(screen.getByRole('button', { name: /retry/i }))
+
+    await waitFor(() => expect(mockSend).toHaveBeenCalledTimes(2))
+    expect(mockSend).toHaveBeenNthCalledWith(1, 'buy AAPL')
+    expect(mockSend).toHaveBeenNthCalledWith(2, 'buy AAPL')
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Helper: expose ChatErrorBoundary for isolated testing
 // ---------------------------------------------------------------------------
 

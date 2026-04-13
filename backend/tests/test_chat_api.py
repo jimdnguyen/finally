@@ -1,8 +1,9 @@
 """Router-level tests for POST /api/chat."""
 
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
+from fastapi import HTTPException
 from httpx import ASGITransport, AsyncClient
 
 from app.db import init_db
@@ -79,3 +80,19 @@ async def test_chat_mock_mode_endpoint(client, monkeypatch):
     assert "trades_executed" in data
     assert "watchlist_changes_applied" in data
     assert isinstance(data["trades_executed"], list)
+
+
+async def test_chat_503_from_router(client, monkeypatch):
+    """LLM failure propagates as HTTP 503 with LLM_ERROR code (AC1)."""
+    monkeypatch.delenv("LLM_MOCK", raising=False)
+    with patch(
+        "app.chat.service.litellm.acompletion",
+        new_callable=AsyncMock,
+        side_effect=Exception("API down"),
+    ):
+        response = await client.post("/api/chat", json={"message": "Hello"})
+
+    assert response.status_code == 503
+    data = response.json()
+    assert data["code"] == "LLM_ERROR"
+    assert data["error"] == "LLM request failed"
