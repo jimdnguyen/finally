@@ -16,6 +16,10 @@ vi.mock('./PositionsTable', () => ({
   default: () => <div data-testid="positions-table" />,
 }))
 
+vi.mock('./PortfolioHeatmap', () => ({
+  default: () => <div data-testid="portfolio-heatmap" />,
+}))
+
 beforeEach(() => {
   usePriceStore.setState({
     prices: {},
@@ -48,11 +52,21 @@ describe('CenterPanel', () => {
     expect(getByTestId('positions-table')).toBeTruthy()
   })
 
-  it('wraps PositionsTable in a scrollable container with border', () => {
+  it('wraps PositionsTable in a scrollable container', () => {
     const { getByTestId } = render(<CenterPanel />)
     const wrapper = getByTestId('positions-table').parentElement
     expect(wrapper?.className).toContain('overflow-auto')
-    expect(wrapper?.className).toContain('border-t')
-    expect(wrapper?.className).toContain('border-border')
+  })
+
+  it('renders PortfolioHeatmap component', () => {
+    const { getByTestId } = render(<CenterPanel />)
+    expect(getByTestId('portfolio-heatmap')).toBeTruthy()
+  })
+
+  it('wraps heatmap and positions in a bottom panel with border-t', () => {
+    const { getByTestId } = render(<CenterPanel />)
+    const bottomPanel = getByTestId('portfolio-heatmap').parentElement?.parentElement
+    expect(bottomPanel?.className).toContain('border-t')
+    expect(bottomPanel?.className).toContain('border-border')
   })
 })

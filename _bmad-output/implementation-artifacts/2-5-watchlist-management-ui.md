@@ -1,6 +1,6 @@
 # Story 2.5: Watchlist Management UI
 
-Status: review
+Status: done
 
 ## Story
 

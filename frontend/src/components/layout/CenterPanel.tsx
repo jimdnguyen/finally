@@ -1,6 +1,7 @@
 import MainChart from './MainChart'
 import TradeBar from './TradeBar'
 import PositionsTable from './PositionsTable'
+import PortfolioHeatmap from './PortfolioHeatmap'
 
 export default function CenterPanel() {
   return (
@@ -9,8 +10,13 @@ export default function CenterPanel() {
         <MainChart />
       </div>
       <TradeBar />
-      <div className="h-48 min-h-[8rem] border-t border-border overflow-auto">
-        <PositionsTable />
+      <div className="h-64 min-h-[10rem] border-t border-border flex flex-col">
+        <div className="h-[40%] min-h-[4rem] border-b border-border">
+          <PortfolioHeatmap />
+        </div>
+        <div className="flex-1 overflow-auto">
+          <PositionsTable />
+        </div>
       </div>
     </section>
   )
