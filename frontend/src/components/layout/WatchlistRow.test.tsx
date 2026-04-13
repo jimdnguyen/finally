@@ -1,8 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, act, fireEvent } from '@testing-library/react'
+import { render, screen, act, fireEvent, waitFor } from '@testing-library/react'
 import WatchlistRow from './WatchlistRow'
 import { usePriceStore } from '@/stores/priceStore'
+import { useWatchlistStore } from '@/stores/watchlistStore'
+import { removeFromWatchlist, fetchWatchlist } from '@/lib/api'
 import type { PriceUpdate } from '@/types'
+
+vi.mock('@/lib/api', () => ({
+  removeFromWatchlist: vi.fn(),
+  fetchWatchlist: vi.fn(),
+}))
 
 // Mock SparklineChart to avoid LightweightCharts DOM complexity in these tests
 vi.mock('./SparklineChart', () => ({
@@ -96,5 +103,44 @@ describe('WatchlistRow', () => {
     const row = container.firstChild as HTMLElement
     fireEvent.click(row)
     expect(usePriceStore.getState().selectedTicker).toBe('AAPL')
+  })
+
+  it('renders × remove button with aria-label', () => {
+    render(<WatchlistRow ticker="AAPL" />)
+    const btn = screen.getByRole('button', { name: 'Remove AAPL' })
+    expect(btn).toBeTruthy()
+    expect(btn.textContent).toBe('×')
+  })
+
+  it('× click calls removeFromWatchlist and refetches', async () => {
+    vi.mocked(removeFromWatchlist).mockResolvedValue(undefined)
+    vi.mocked(fetchWatchlist).mockResolvedValue([{ ticker: 'GOOGL', price: 175 }])
+    useWatchlistStore.setState({ tickers: ['AAPL', 'GOOGL'] })
+
+    render(<WatchlistRow ticker="AAPL" />)
+    const btn = screen.getByRole('button', { name: 'Remove AAPL' })
+    fireEvent.click(btn)
+
+    await waitFor(() => {
+      expect(removeFromWatchlist).toHaveBeenCalledWith('AAPL')
+      expect(fetchWatchlist).toHaveBeenCalled()
+    })
+    expect(useWatchlistStore.getState().tickers).toEqual(['GOOGL'])
+  })
+
+  it('× click does not trigger row selectTicker', async () => {
+    vi.mocked(removeFromWatchlist).mockResolvedValue(undefined)
+    vi.mocked(fetchWatchlist).mockResolvedValue([{ ticker: 'AAPL', price: 190 }])
+    usePriceStore.setState({ selectedTicker: 'GOOGL' })
+
+    render(<WatchlistRow ticker="AAPL" />)
+    const btn = screen.getByRole('button', { name: 'Remove AAPL' })
+    fireEvent.click(btn)
+
+    await waitFor(() => {
+      expect(removeFromWatchlist).toHaveBeenCalled()
+    })
+    // selectedTicker should NOT have changed to AAPL
+    expect(usePriceStore.getState().selectedTicker).toBe('GOOGL')
   })
 })

@@ -16,6 +16,7 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
     const body = await res.json().catch(() => ({ message: res.statusText, code: String(res.status) }))
     throw new ApiError(body.error ?? body.message ?? res.statusText, body.code ?? String(res.status))
   }
+  if (res.status === 204) return undefined as T
   return res.json() as Promise<T>
 }
 
@@ -32,5 +33,19 @@ export function executeTrade(req: TradeRequest): Promise<Portfolio> {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(req),
+  })
+}
+
+export function addToWatchlist(ticker: string): Promise<WatchlistItem> {
+  return apiFetch<WatchlistItem>('/api/watchlist', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ticker }),
+  })
+}
+
+export function removeFromWatchlist(ticker: string): Promise<void> {
+  return apiFetch<void>(`/api/watchlist/${encodeURIComponent(ticker)}`, {
+    method: 'DELETE',
   })
 }

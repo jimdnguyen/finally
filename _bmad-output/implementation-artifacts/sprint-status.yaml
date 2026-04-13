@@ -57,7 +57,7 @@ development_status:
   2-2-portfolio-snapshot-background-task: done
   2-3-positions-table-portfolio-header: done
   2-4-trade-bar-ui: done
-  2-5-watchlist-management-ui: backlog
+  2-5-watchlist-management-ui: review
   2-6-portfolio-heatmap: backlog
   2-7-pnl-history-chart: backlog
   epic-2-retrospective: optional

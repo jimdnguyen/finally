@@ -1,7 +1,9 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePriceStore } from '@/stores/priceStore'
+import { useWatchlistStore } from '@/stores/watchlistStore'
+import { removeFromWatchlist, fetchWatchlist } from '@/lib/api'
 import SparklineChart from './SparklineChart'
 import type { SparklinePoint } from '@/stores/priceStore'
 
@@ -23,12 +25,12 @@ export default function WatchlistRow({ ticker }: WatchlistRowProps) {
   const points = usePriceStore((s) => s.sparklines[ticker] ?? EMPTY_POINTS)
   const isActive = usePriceStore((s) => s.selectedTicker === ticker)
   const rowRef = useRef<HTMLDivElement>(null)
+  const [isRemoving, setIsRemoving] = useState(false)
 
   useEffect(() => {
     if (!price || !rowRef.current) return
     const el = rowRef.current
     el.classList.remove('flash-green', 'flash-red')
-    // Force reflow so removing + re-adding the class restarts the animation
     void el.offsetWidth
     el.classList.add(price.price >= price.previous_price ? 'flash-green' : 'flash-red')
     const timer = setTimeout(() => {
@@ -39,11 +41,28 @@ export default function WatchlistRow({ ticker }: WatchlistRowProps) {
 
   const change = price ? formatChange(price.price, price.previous_price) : null
 
+  async function handleRemove(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (isRemoving) return
+    setIsRemoving(true)
+    try {
+      await removeFromWatchlist(ticker)
+      const items = await fetchWatchlist()
+      useWatchlistStore.getState().setTickers(items.map((i) => i.ticker))
+    } catch {
+      // Refetch anyway to stay in sync — but don't wipe store if refetch also fails
+      const items = await fetchWatchlist().catch(() => null)
+      if (items) useWatchlistStore.getState().setTickers(items.map((i) => i.ticker))
+    } finally {
+      setIsRemoving(false)
+    }
+  }
+
   return (
     <div
       ref={rowRef}
       onClick={() => usePriceStore.getState().selectTicker(ticker)}
-      className={`flex items-center gap-2 px-3 py-2 border-b border-b-border cursor-pointer hover:bg-surface border-l-2 ${
+      className={`group flex items-center gap-2 px-3 py-2 border-b border-b-border cursor-pointer hover:bg-surface border-l-2 ${
         isActive ? 'border-l-blue-primary' : 'border-l-transparent'
       }`}
     >
@@ -63,6 +82,14 @@ export default function WatchlistRow({ ticker }: WatchlistRowProps) {
       >
         {change ? change.text : '—'}
       </span>
+      <button
+        onClick={handleRemove}
+        disabled={isRemoving}
+        className="hidden group-hover:inline text-red-down text-xs font-semibold ml-1 hover:text-red-600 disabled:opacity-40"
+        aria-label={`Remove ${ticker}`}
+      >
+        ×
+      </button>
     </div>
   )
 }
