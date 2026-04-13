@@ -26,3 +26,11 @@
 - ResizeObserver null-ref edge case on rapid unmount in PnLHistoryChart — same pattern as MainChart.tsx reference implementation; cleanup ordering (disconnect then remove) prevents in practice
 - Client-side data ordering not validated before `setData` — spec guarantees backend returns history sorted ascending; defensive sort deferred
 - TabStrip keyboard accessibility (aria-selected, role="tab", arrow key navigation) — legitimate enhancement; not required by AC4; suitable for a future accessibility pass
+
+## Deferred from: code review of 3-1-chat-api-with-portfolio-context (2026-04-12)
+
+- No API key pre-validation before LLM call (`service.py:42`) — broad `except` catches the failure and returns 502 LLM_ERROR; environment config concern out of story scope
+- Messages saved after trades execute (`service.py:153`) — if `save_message` fails, trades are orphaned with no audit trail; known SQLite single-user trade-off
+- No timeout on `litellm.acompletion()` (`service.py:42`) — frontend loading indicator is the current mitigation; server-side timeout is future hardening
+- `price_cache.get_price(ticker) or avg_cost` falsely falls back on zero price (`service.py:74`) — zero price is unrealistic for equities in this simulator; no practical impact
+- Empty LLM message string passes `LLMResponse` validation (`models.py:20`) — minor UX concern; spec does not require `min_length` on the LLM response message field

@@ -11,8 +11,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.db import init_db
+from app.chat.router import create_chat_router
 from app.db import config as db_config
+from app.db import init_db
 from app.health.router import router as health_router
 from app.market import PriceCache, create_market_data_source, create_stream_router
 from app.portfolio.router import create_portfolio_router
@@ -71,6 +72,7 @@ def create_app() -> FastAPI:
     app.include_router(health_router, prefix="/api")
     app.include_router(create_watchlist_router(price_cache, market_source), prefix="/api")
     app.include_router(create_portfolio_router(price_cache), prefix="/api")
+    app.include_router(create_chat_router(price_cache), prefix="/api")
     app.include_router(create_stream_router(price_cache))
 
     if STATIC_DIR.exists():
