@@ -18,3 +18,11 @@
 
 - No error handling for DB failures in `snapshot_loop()` — a transient DB error (e.g., locked file) would crash the task permanently. Spec pattern only catches `CancelledError`; defensive handling deferred for MVP.
 - Floating-point accumulation in portfolio value sum — native Python `sum()` with no rounding. Pre-existing deferral (F2 from Story 2.1). Acceptable for simulated portfolio.
+
+## Deferred from: code review of 2-7-pnl-history-chart (2026-04-12)
+
+- Race condition: rapid trades may receive out-of-order history responses — pre-existing fire-and-forget pattern in codebase; single-user simulator makes this low impact in practice
+- Silent error swallowing in `fetchPortfolioHistory` `.catch(() => {})` — intentional per Dev Notes; consistent with all initial fetch patterns; no user-visible history loading error
+- ResizeObserver null-ref edge case on rapid unmount in PnLHistoryChart — same pattern as MainChart.tsx reference implementation; cleanup ordering (disconnect then remove) prevents in practice
+- Client-side data ordering not validated before `setData` — spec guarantees backend returns history sorted ascending; defensive sort deferred
+- TabStrip keyboard accessibility (aria-selected, role="tab", arrow key navigation) — legitimate enhancement; not required by AC4; suitable for a future accessibility pass

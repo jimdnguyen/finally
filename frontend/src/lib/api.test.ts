@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ApiError, executeTrade, fetchPortfolio, addToWatchlist, removeFromWatchlist } from './api'
-import type { Portfolio, WatchlistItem } from '@/types'
+import { ApiError, executeTrade, fetchPortfolio, fetchPortfolioHistory, addToWatchlist, removeFromWatchlist } from './api'
+import type { Portfolio, PortfolioSnapshot, WatchlistItem } from '@/types'
 
 const mockPortfolio: Portfolio = {
   cash_balance: 8000,
@@ -78,6 +78,35 @@ describe('fetchPortfolio', () => {
 
     const result = await fetchPortfolio()
     expect(result).toEqual(mockPortfolio)
+  })
+})
+
+describe('fetchPortfolioHistory', () => {
+  const mockHistory: PortfolioSnapshot[] = [
+    { recorded_at: '2026-04-12T10:00:00Z', total_value: 10000 },
+    { recorded_at: '2026-04-12T10:00:30Z', total_value: 10050 },
+  ]
+
+  it('returns PortfolioSnapshot[] on success', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockHistory),
+    }))
+
+    const result = await fetchPortfolioHistory()
+    expect(result).toEqual(mockHistory)
+    expect(fetch).toHaveBeenCalledWith('/api/portfolio/history', undefined)
+  })
+
+  it('throws ApiError on failure', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      statusText: 'Internal Server Error',
+      json: () => Promise.reject(new Error('parse error')),
+    }))
+
+    await expect(fetchPortfolioHistory()).rejects.toThrow(ApiError)
   })
 })
 

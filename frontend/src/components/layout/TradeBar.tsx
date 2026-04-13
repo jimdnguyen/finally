@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { usePriceStore } from '@/stores/priceStore'
 import { usePortfolioStore } from '@/stores/portfolioStore'
-import { executeTrade } from '@/lib/api'
+import { executeTrade, fetchPortfolioHistory } from '@/lib/api'
 
 export default function TradeBar() {
   const selectedTicker = usePriceStore((s) => s.selectedTicker)
@@ -26,6 +26,9 @@ export default function TradeBar() {
     try {
       const portfolio = await executeTrade({ ticker: ticker.trim(), quantity: qty, side })
       usePortfolioStore.getState().setPortfolio(portfolio)
+      fetchPortfolioHistory()
+        .then((history) => usePortfolioStore.getState().setHistory(history))
+        .catch(() => {})
       setQuantity('')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Trade failed')

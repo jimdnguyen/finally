@@ -7,10 +7,12 @@ import type { Portfolio } from '@/types'
 
 vi.mock('@/lib/api', () => ({
   executeTrade: vi.fn(),
+  fetchPortfolioHistory: vi.fn(),
 }))
 
-import { executeTrade } from '@/lib/api'
+import { executeTrade, fetchPortfolioHistory } from '@/lib/api'
 const mockExecuteTrade = vi.mocked(executeTrade)
+const mockFetchHistory = vi.mocked(fetchPortfolioHistory)
 
 const mockPortfolio: Portfolio = {
   cash_balance: 8000,
@@ -20,8 +22,9 @@ const mockPortfolio: Portfolio = {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  mockFetchHistory.mockResolvedValue([])
   usePriceStore.setState({ selectedTicker: 'AAPL' })
-  usePortfolioStore.setState({ portfolio: null, isLoading: false })
+  usePortfolioStore.setState({ portfolio: null, history: null, isLoading: false })
 })
 
 describe('TradeBar', () => {
@@ -122,6 +125,23 @@ describe('TradeBar', () => {
 
     await waitFor(() => {
       expect(mockExecuteTrade).toHaveBeenCalledWith({ ticker: 'AAPL', quantity: 5, side: 'buy' })
+    })
+  })
+
+  it('successful trade also refetches portfolio history', async () => {
+    const mockHistory = [{ recorded_at: '2026-04-12T10:00:00Z', total_value: 9900 }]
+    mockExecuteTrade.mockResolvedValue(mockPortfolio)
+    mockFetchHistory.mockResolvedValue(mockHistory)
+
+    render(<TradeBar />)
+    fireEvent.change(screen.getByPlaceholderText('100'), { target: { value: '10' } })
+    fireEvent.click(screen.getByRole('button', { name: /buy/i }))
+
+    await waitFor(() => {
+      expect(mockFetchHistory).toHaveBeenCalled()
+    })
+    await waitFor(() => {
+      expect(usePortfolioStore.getState().history).toEqual(mockHistory)
     })
   })
 })

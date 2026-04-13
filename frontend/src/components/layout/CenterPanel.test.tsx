@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import CenterPanel from './CenterPanel'
 import { usePriceStore } from '@/stores/priceStore'
 
-// Mock MainChart to avoid LightweightCharts complexity
 vi.mock('./MainChart', () => ({
   default: () => <div data-testid="main-chart" />,
 }))
@@ -18,6 +17,22 @@ vi.mock('./PositionsTable', () => ({
 
 vi.mock('./PortfolioHeatmap', () => ({
   default: () => <div data-testid="portfolio-heatmap" />,
+}))
+
+vi.mock('./PnLHistoryChart', () => ({
+  default: () => <div data-testid="pnl-history-chart" />,
+}))
+
+vi.mock('./TabStrip', () => ({
+  default: ({ tabs, activeTab, onTabChange }: { tabs: string[]; activeTab: string; onTabChange: (t: string) => void }) => (
+    <div data-testid="tab-strip">
+      {tabs.map((t) => (
+        <button key={t} data-testid={`tab-${t}`} data-active={t === activeTab} onClick={() => onTabChange(t)}>
+          {t}
+        </button>
+      ))}
+    </div>
+  ),
 }))
 
 beforeEach(() => {
@@ -47,26 +62,38 @@ describe('CenterPanel', () => {
     expect(getByTestId('trade-bar')).toBeTruthy()
   })
 
-  it('renders PositionsTable component', () => {
+  it('renders TabStrip component', () => {
     const { getByTestId } = render(<CenterPanel />)
+    expect(getByTestId('tab-strip')).toBeTruthy()
+  })
+
+  it('default tab is Positions — PositionsTable visible', () => {
+    const { getByTestId, queryByTestId } = render(<CenterPanel />)
     expect(getByTestId('positions-table')).toBeTruthy()
+    expect(queryByTestId('portfolio-heatmap')).toBeNull()
+    expect(queryByTestId('pnl-history-chart')).toBeNull()
   })
 
-  it('wraps PositionsTable in a scrollable container', () => {
-    const { getByTestId } = render(<CenterPanel />)
-    const wrapper = getByTestId('positions-table').parentElement
-    expect(wrapper?.className).toContain('overflow-auto')
-  })
-
-  it('renders PortfolioHeatmap component', () => {
-    const { getByTestId } = render(<CenterPanel />)
+  it('switching to Heatmap shows PortfolioHeatmap', () => {
+    const { getByTestId, queryByTestId } = render(<CenterPanel />)
+    fireEvent.click(getByTestId('tab-Heatmap'))
     expect(getByTestId('portfolio-heatmap')).toBeTruthy()
+    expect(queryByTestId('positions-table')).toBeNull()
+    expect(queryByTestId('pnl-history-chart')).toBeNull()
   })
 
-  it('wraps heatmap and positions in a bottom panel with border-t', () => {
+  it('switching to P&L History shows PnLHistoryChart', () => {
+    const { getByTestId, queryByTestId } = render(<CenterPanel />)
+    fireEvent.click(getByTestId('tab-P&L History'))
+    expect(getByTestId('pnl-history-chart')).toBeTruthy()
+    expect(queryByTestId('positions-table')).toBeNull()
+    expect(queryByTestId('portfolio-heatmap')).toBeNull()
+  })
+
+  it('has border-t above TabStrip area', () => {
     const { getByTestId } = render(<CenterPanel />)
-    const bottomPanel = getByTestId('portfolio-heatmap').parentElement?.parentElement
-    expect(bottomPanel?.className).toContain('border-t')
-    expect(bottomPanel?.className).toContain('border-border')
+    const tabStripWrapper = getByTestId('tab-strip').parentElement
+    expect(tabStripWrapper?.className).toContain('border-t')
+    expect(tabStripWrapper?.className).toContain('border-border')
   })
 })

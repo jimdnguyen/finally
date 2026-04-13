@@ -1,4 +1,4 @@
-import type { Portfolio, TradeRequest, WatchlistItem } from '@/types'
+import type { Portfolio, PortfolioSnapshot, TradeRequest, WatchlistItem } from '@/types'
 
 export class ApiError extends Error {
   code: string
@@ -26,6 +26,10 @@ export function fetchWatchlist(): Promise<WatchlistItem[]> {
 
 export function fetchPortfolio(): Promise<Portfolio> {
   return apiFetch<Portfolio>('/api/portfolio')
+}
+
+export function fetchPortfolioHistory(): Promise<PortfolioSnapshot[]> {
+  return apiFetch<PortfolioSnapshot[]>('/api/portfolio/history')
 }
 
 export function executeTrade(req: TradeRequest): Promise<Portfolio> {
