@@ -1,4 +1,4 @@
-import type { Portfolio, PortfolioSnapshot, TradeRequest, WatchlistItem } from '@/types'
+import type { ChatResponse, Portfolio, PortfolioSnapshot, TradeRequest, WatchlistItem } from '@/types'
 
 export class ApiError extends Error {
   code: string
@@ -51,5 +51,13 @@ export function addToWatchlist(ticker: string): Promise<WatchlistItem> {
 export function removeFromWatchlist(ticker: string): Promise<void> {
   return apiFetch<void>(`/api/watchlist/${encodeURIComponent(ticker)}`, {
     method: 'DELETE',
+  })
+}
+
+export function sendChatMessage(message: string): Promise<ChatResponse> {
+  return apiFetch<ChatResponse>('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
   })
 }

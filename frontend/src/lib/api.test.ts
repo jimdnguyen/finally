@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ApiError, executeTrade, fetchPortfolio, fetchPortfolioHistory, addToWatchlist, removeFromWatchlist } from './api'
-import type { Portfolio, PortfolioSnapshot, WatchlistItem } from '@/types'
+import { ApiError, executeTrade, fetchPortfolio, fetchPortfolioHistory, addToWatchlist, removeFromWatchlist, sendChatMessage } from './api'
+import type { Portfolio, PortfolioSnapshot, WatchlistItem, ChatResponse } from '@/types'
 
 const mockPortfolio: Portfolio = {
   cash_balance: 8000,
@@ -143,6 +143,48 @@ describe('addToWatchlist', () => {
       const err = e as ApiError
       expect(err.message).toBe('Ticker is required')
       expect(err.code).toBe('INVALID_TICKER')
+    }
+  })
+})
+
+describe('sendChatMessage', () => {
+  const mockChatResponse: ChatResponse = {
+    message: 'Buying AAPL for you.',
+    trades_executed: [
+      { ticker: 'AAPL', side: 'buy', quantity: 5, status: 'executed', price: 182.45 },
+    ],
+    watchlist_changes_applied: [],
+  }
+
+  it('returns ChatResponse on success', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockChatResponse),
+    }))
+
+    const result = await sendChatMessage('buy 5 AAPL')
+    expect(result).toEqual(mockChatResponse)
+    expect(fetch).toHaveBeenCalledWith('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'buy 5 AAPL' }),
+    })
+  })
+
+  it('throws ApiError on 502 LLM failure', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: false,
+      status: 502,
+      statusText: 'Bad Gateway',
+      json: () => Promise.resolve({ error: 'LLM unavailable', code: 'LLM_ERROR' }),
+    }))
+
+    try {
+      await sendChatMessage('hello')
+    } catch (e) {
+      const err = e as ApiError
+      expect(err.message).toBe('LLM unavailable')
+      expect(err.code).toBe('LLM_ERROR')
     }
   })
 })

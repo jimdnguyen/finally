@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { fetchPortfolio } from '@/lib/api'
 import type { Portfolio, PortfolioSnapshot } from '@/types'
 
 interface PortfolioState {
@@ -8,6 +9,7 @@ interface PortfolioState {
   setPortfolio: (portfolio: Portfolio) => void
   setHistory: (history: PortfolioSnapshot[]) => void
   setLoading: (loading: boolean) => void
+  refresh: () => Promise<void>
 }
 
 export const usePortfolioStore = create<PortfolioState>((set) => ({
@@ -20,4 +22,9 @@ export const usePortfolioStore = create<PortfolioState>((set) => ({
   setHistory: (history: PortfolioSnapshot[]) => set({ history }),
 
   setLoading: (loading: boolean) => set({ isLoading: loading }),
+
+  refresh: async () => {
+    const data = await fetchPortfolio()
+    set({ portfolio: data })
+  },
 }))

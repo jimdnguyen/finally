@@ -40,3 +40,25 @@ export interface TradeRequest {
   quantity: number
   side: 'buy' | 'sell'
 }
+
+export interface TradeExecuted {
+  ticker: string
+  side: string
+  quantity: number
+  status: 'executed' | 'error'
+  error?: string
+  price?: number
+}
+
+export interface WatchlistChangeApplied {
+  ticker: string
+  action: 'add' | 'remove'
+  status: 'ok' | 'error'
+  error?: string
+}
+
+export interface ChatResponse {
+  message: string
+  trades_executed: TradeExecuted[]
+  watchlist_changes_applied: WatchlistChangeApplied[]
+}
