@@ -25,6 +25,7 @@ export default function SparklineChart({ points, width = 52, height = 20 }: Spar
       layout: {
         background: { color: 'transparent' },
         textColor: 'transparent',
+        attributionLogo: false,
       },
       grid: {
         vertLines: { visible: false },

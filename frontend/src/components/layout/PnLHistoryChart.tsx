@@ -19,6 +19,7 @@ export default function PnLHistoryChart() {
       layout: {
         background: { type: ColorType.Solid, color: '#0d1117' },
         textColor: '#8b949e',
+        attributionLogo: false,
       },
       grid: {
         vertLines: { color: '#30363d' },
@@ -59,7 +60,7 @@ export default function PnLHistoryChart() {
     if (!seriesRef.current || !history || history.length === 0) return
 
     const mapped = history.map((snap) => ({
-      time: snap.recorded_at,
+      time: Math.floor(new Date(snap.recorded_at).getTime() / 1000) as import('lightweight-charts').UTCTimestamp,
       value: snap.total_value,
     }))
 

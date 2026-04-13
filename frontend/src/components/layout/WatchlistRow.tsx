@@ -62,30 +62,34 @@ export default function WatchlistRow({ ticker }: WatchlistRowProps) {
     <div
       ref={rowRef}
       onClick={() => usePriceStore.getState().selectTicker(ticker)}
-      className={`group flex items-center gap-2 px-3 py-2 border-b border-b-border cursor-pointer hover:bg-surface border-l-2 ${
+      className={`group grid grid-cols-[2.5rem_1fr_auto] items-center gap-x-2 px-2 py-1.5 border-b border-b-border cursor-pointer hover:bg-surface border-l-2 ${
         isActive ? 'border-l-blue-primary' : 'border-l-transparent'
       }`}
     >
-      <span className="w-14 text-xs font-semibold text-text-primary uppercase">{ticker}</span>
-      <SparklineChart points={points} />
-      <span className="font-mono text-xs text-text-primary ml-auto">
-        {price ? `$${price.price.toFixed(2)}` : '—'}
-      </span>
-      <span
-        className={`font-mono text-xs w-16 text-right ${
-          change
-            ? change.positive
-              ? 'text-green-up'
-              : 'text-red-down'
-            : 'text-text-muted'
-        }`}
-      >
-        {change ? change.text : '—'}
-      </span>
+      <span className="text-xs font-semibold text-text-primary uppercase truncate">{ticker}</span>
+      <div className="flex justify-center">
+        <SparklineChart points={points} width={44} />
+      </div>
+      <div className="flex flex-col items-end">
+        <span className="font-mono text-xs text-text-primary">
+          {price ? `$${price.price.toFixed(2)}` : '—'}
+        </span>
+        <span
+          className={`font-mono text-[10px] leading-tight ${
+            change
+              ? change.positive
+                ? 'text-green-up'
+                : 'text-red-down'
+              : 'text-text-muted'
+          }`}
+        >
+          {change ? change.text : '—'}
+        </span>
+      </div>
       <button
         onClick={handleRemove}
         disabled={isRemoving}
-        className="hidden group-hover:inline text-red-down text-xs font-semibold ml-1 hover:text-red-600 disabled:opacity-40"
+        className="hidden group-hover:block col-start-3 text-red-down text-xs font-semibold hover:text-red-600 disabled:opacity-40"
         aria-label={`Remove ${ticker}`}
       >
         ×

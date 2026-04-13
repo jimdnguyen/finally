@@ -15,7 +15,7 @@ export default function MainChart() {
   const chartRef = useRef<IChartApi | null>(null)
   const seriesRef = useRef<ISeriesApi<SeriesType> | null>(null)
   const prevTickerRef = useRef(ticker)
-  const prevLengthRef = useRef(0)
+  const prevLastTimeRef = useRef<number>(-1)
 
   // Chart creation + cleanup
   useEffect(() => {
@@ -25,6 +25,7 @@ export default function MainChart() {
       layout: {
         background: { type: ColorType.Solid, color: '#0d1117' },
         textColor: '#8b949e',
+        attributionLogo: false,
       },
       grid: {
         vertLines: { color: '#30363d' },
@@ -35,7 +36,7 @@ export default function MainChart() {
         horzLine: { color: '#30363d', labelBackgroundColor: '#753991' },
       },
       rightPriceScale: { borderColor: '#30363d' },
-      timeScale: { borderColor: '#30363d' },
+      timeScale: { borderColor: '#30363d', timeVisible: true, secondsVisible: true },
     })
 
     const series = chart.addSeries(LineSeries, {
@@ -71,10 +72,13 @@ export default function MainChart() {
     if (tickerChanged || points.length === 0) {
       seriesRef.current.setData(points)
       chartRef.current?.timeScale().fitContent()
-      prevLengthRef.current = points.length
-    } else if (points.length > prevLengthRef.current) {
-      seriesRef.current.update(points[points.length - 1])
-      prevLengthRef.current = points.length
+      prevLastTimeRef.current = points.length > 0 ? (points[points.length - 1].time as number) : -1
+    } else {
+      const lastTime = points.length > 0 ? (points[points.length - 1].time as number) : -1
+      if (lastTime > prevLastTimeRef.current) {
+        seriesRef.current.update(points[points.length - 1])
+        prevLastTimeRef.current = lastTime
+      }
     }
   }, [ticker, points])
 

@@ -8,7 +8,8 @@ const DISCONNECT_TIMEOUT_MS = 10_000
 
 export function useSSE(): void {
   useEffect(() => {
-    const es = new EventSource('/api/stream/prices')
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? ''
+    const es = new EventSource(`${backendUrl}/api/stream/prices`)
     let disconnectTimer: ReturnType<typeof setTimeout> | null = null
 
     es.onopen = () => {

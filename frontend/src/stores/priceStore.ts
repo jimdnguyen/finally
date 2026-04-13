@@ -24,8 +24,10 @@ export const usePriceStore = create<PriceState>((set) => ({
   updatePrice: (update: PriceUpdate) =>
     set((state) => {
       const existing = state.sparklines[update.ticker] ?? []
+      const lastTime = existing.length > 0 ? (existing[existing.length - 1].time as number) : -1
+      const nowSec = Math.floor(Date.now() / 1000)
       const point: SparklinePoint = {
-        time: Math.floor(new Date(update.timestamp).getTime() / 1000),
+        time: nowSec > lastTime ? nowSec : lastTime + 1,
         value: update.price,
       }
       const appended = [...existing, point]
