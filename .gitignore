@@ -224,3 +224,8 @@ static/
 .claude/scheduled_tasks.lock
 
 learnings/
+
+# E2E test artifacts
+test/screenshots/
+test/test-results/
+test/node_modules/

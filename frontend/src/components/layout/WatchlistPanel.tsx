@@ -46,6 +46,7 @@ export default function WatchlistPanel() {
       </div>
       <div className="px-3 py-2 border-t border-border">
         <input
+          data-testid="add-ticker-input"
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}

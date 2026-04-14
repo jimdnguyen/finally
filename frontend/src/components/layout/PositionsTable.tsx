@@ -32,7 +32,7 @@ function PositionRow({ position }: { position: Position }) {
   const pct = formatPct(pnlPct)
 
   return (
-    <tr className="border-b border-border hover:bg-surface/50">
+    <tr data-testid="position-row" className="border-b border-border hover:bg-surface/50">
       <td className="px-3 py-2 font-mono text-sm font-semibold">{position.ticker}</td>
       <td className="px-3 py-2 font-mono text-sm text-right">{position.quantity}</td>
       <td className="px-3 py-2 font-mono text-sm text-right">${position.avg_cost.toFixed(2)}</td>

@@ -47,6 +47,7 @@ export default function TradeBar() {
     <div className="border-t border-b border-border px-3 py-2">
       <div className="flex items-center gap-3">
         <input
+          data-testid="trade-ticker"
           type="text"
           value={ticker}
           onChange={(e) => setTicker(e.target.value.toUpperCase())}
@@ -54,6 +55,7 @@ export default function TradeBar() {
           className="w-24 border-0 border-b border-border bg-transparent font-mono text-sm outline-none focus:border-b-blue-primary"
         />
         <input
+          data-testid="trade-quantity"
           type="number"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
@@ -63,6 +65,7 @@ export default function TradeBar() {
           className="w-20 border-0 border-b border-border bg-transparent font-mono text-sm outline-none focus:border-b-blue-primary"
         />
         <button
+          data-testid="buy-button"
           onClick={() => handleTrade('buy')}
           disabled={isSubmitting}
           className="bg-purple-action text-white uppercase text-xs font-semibold font-sans tracking-wide px-4 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
@@ -70,6 +73,7 @@ export default function TradeBar() {
           Buy
         </button>
         <button
+          data-testid="sell-button"
           onClick={() => handleTrade('sell')}
           disabled={isSubmitting}
           className="bg-purple-action text-white uppercase text-xs font-semibold font-sans tracking-wide px-4 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"

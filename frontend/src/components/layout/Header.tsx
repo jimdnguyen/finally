@@ -19,7 +19,7 @@ export default function Header() {
         </span>
         <span className="font-sans text-xs text-text-muted">
           Cash:{' '}
-          <span className="font-mono text-sm font-medium text-text-muted">
+          <span data-testid="cash-balance" className="font-mono text-sm font-medium text-text-muted">
             {portfolio ? currencyFmt.format(portfolio.cash_balance) : '—'}
           </span>
         </span>

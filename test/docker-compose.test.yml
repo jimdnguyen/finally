@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    environment:
+      - LLM_MOCK=true
+      - DATABASE_PATH=/app/db/finally.db
+    # No volume mount - fresh database each run for test isolation
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    networks:
+      - test-network
+
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.52.0-noble
+    working_dir: /tests
+    volumes:
+      - ./specs:/tests/specs
+      - ./screenshots:/tests/screenshots
+      - ./playwright.config.ts:/tests/playwright.config.ts
+      - ./package.json:/tests/package.json
+      - ./node_modules:/tests/node_modules
+    command: sh -c "npm install && npx playwright test"
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      - BASE_URL=http://app:8000
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge

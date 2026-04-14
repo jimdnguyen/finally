@@ -30,6 +30,7 @@ export default function StatusDot() {
   return (
     <div className="flex items-center gap-1.5">
       <span
+        data-testid="status-dot"
         className={`inline-block w-2 h-2 rounded-full ${config.dotClass}`}
         style={config.dotStyle}
       />

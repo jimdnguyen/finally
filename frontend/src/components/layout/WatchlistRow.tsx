@@ -61,6 +61,7 @@ export default function WatchlistRow({ ticker }: WatchlistRowProps) {
   return (
     <div
       ref={rowRef}
+      data-testid="watchlist-row"
       onClick={() => usePriceStore.getState().selectTicker(ticker)}
       className={`group grid grid-cols-[2.5rem_1fr_auto] items-center gap-x-2 px-2 py-1.5 border-b border-b-border cursor-pointer hover:bg-surface border-l-2 ${
         isActive ? 'border-l-blue-primary' : 'border-l-transparent'
@@ -87,6 +88,7 @@ export default function WatchlistRow({ ticker }: WatchlistRowProps) {
         </span>
       </div>
       <button
+        data-testid="remove-ticker"
         onClick={handleRemove}
         disabled={isRemoving}
         className="hidden group-hover:block col-start-3 text-red-down text-xs font-semibold hover:text-red-600 disabled:opacity-40"

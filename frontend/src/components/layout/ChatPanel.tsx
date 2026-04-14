@@ -160,6 +160,7 @@ function ChatInput({
     <div className="flex items-center gap-2 border-t border-border p-2">
       <span className="text-text-muted font-mono text-sm flex-shrink-0">{'>'}</span>
       <input
+        data-testid="chat-input"
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
