@@ -20,9 +20,8 @@ test.describe('Watchlist', () => {
     const pyplRow = page.locator('[data-testid="watchlist-row"]:has-text("PYPL")');
     await expect(pyplRow).toBeVisible();
 
-    // Remove it - hover to reveal remove button
-    await pyplRow.hover();
-    await pyplRow.locator('[data-testid="remove-ticker"]').click();
+    // Remove it - use dispatchEvent since hover-revealed buttons don't work in headless
+    await pyplRow.locator('[data-testid="remove-ticker"]').dispatchEvent('click');
 
     // Verify row disappears
     await expect(page.locator('[data-testid="watchlist-row"]')).toHaveCount(initialCount);

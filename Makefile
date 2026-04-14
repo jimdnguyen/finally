@@ -1,4 +1,4 @@
-.PHONY: start stop build logs test clean
+.PHONY: start stop build logs test test-firefox test-chromium test-all clean
 
 IMAGE_NAME := finally
 CONTAINER_NAME := finally
@@ -26,7 +26,20 @@ logs:
 	docker logs -f $(CONTAINER_NAME)
 
 test:
-	docker-compose -f test/docker-compose.test.yml up --abort-on-container-exit --exit-code-from playwright
+	docker-compose -f test/docker-compose.test.yml down --volumes --remove-orphans 2>/dev/null || true
+	docker-compose -f test/docker-compose.test.yml up --build --force-recreate --abort-on-container-exit --exit-code-from playwright
+
+test-firefox:
+	docker-compose -f test/docker-compose.test.yml down --volumes --remove-orphans 2>/dev/null || true
+	PLAYWRIGHT_PROJECT=firefox docker-compose -f test/docker-compose.test.yml up --build --force-recreate --abort-on-container-exit --exit-code-from playwright
+
+test-chromium:
+	docker-compose -f test/docker-compose.test.yml down --volumes --remove-orphans 2>/dev/null || true
+	PLAYWRIGHT_PROJECT=chromium docker-compose -f test/docker-compose.test.yml up --build --force-recreate --abort-on-container-exit --exit-code-from playwright
+
+test-all:
+	$(MAKE) test-firefox
+	$(MAKE) test-chromium
 
 clean:
 	@echo "WARNING: This will delete all portfolio data!"

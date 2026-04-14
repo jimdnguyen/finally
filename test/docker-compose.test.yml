@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  app:
+  webapp:
     build:
       context: ..
       dockerfile: Dockerfile
@@ -19,20 +19,26 @@ services:
       - test-network
 
   playwright:
-    image: mcr.microsoft.com/playwright:v1.52.0-noble
+    image: mcr.microsoft.com/playwright:v1.59.1-noble
+    init: true
+    ipc: host
+    cap_add:
+      - SYS_ADMIN
     working_dir: /tests
     volumes:
       - ./specs:/tests/specs
       - ./screenshots:/tests/screenshots
+      - ./test-results:/tests/test-results
       - ./playwright.config.ts:/tests/playwright.config.ts
       - ./package.json:/tests/package.json
       - ./node_modules:/tests/node_modules
-    command: sh -c "npm install && npx playwright test"
+    command: sh -c "npm install && npx playwright test ${PLAYWRIGHT_PROJECT:+--project=$PLAYWRIGHT_PROJECT}"
     depends_on:
-      app:
+      webapp:
         condition: service_healthy
     environment:
-      - BASE_URL=http://app:8000
+      - BASE_URL=http://webapp:8000
+      - PLAYWRIGHT_PROJECT=${PLAYWRIGHT_PROJECT:-}
     networks:
       - test-network
 

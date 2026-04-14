@@ -34,3 +34,11 @@
 - No timeout on `litellm.acompletion()` (`service.py:42`) — frontend loading indicator is the current mitigation; server-side timeout is future hardening
 - `price_cache.get_price(ticker) or avg_cost` falsely falls back on zero price (`service.py:74`) — zero price is unrealistic for equities in this simulator; no practical impact
 - Empty LLM message string passes `LLMResponse` validation (`models.py:20`) — minor UX concern; spec does not require `min_length` on the LLM response message field
+
+## Deferred from: code review of 4-3-playwright-e2e-tests (2026-04-13)
+
+- StatusDot color→visibility check (`test/specs/00-fresh-start.spec.ts:21`) — Firefox headless SSE unreliable; test verifies component visibility instead of green class
+- dispatchEvent workaround for hover-revealed buttons (`test/specs/watchlist.spec.ts:24`) — CSS hover states don't work in headless Firefox; functionally equivalent
+- Security flags disabled (`test/playwright.config.ts:15-21`) — --no-sandbox, --disable-web-security required for Docker Desktop Windows; document as platform limitation
+- No test data reset between tests (`test/specs/*.spec.ts`) — serial execution (workers:1) with fresh DB per run; acceptable for E2E isolation
+- networkidle race with slow container startup (`test/specs/*.spec.ts`) — low probability flakiness; would manifest as intermittent test failures

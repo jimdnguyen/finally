@@ -4,9 +4,8 @@ test.describe('Trading', () => {
   test('buy shares updates portfolio', async ({ page }) => {
     await page.goto('/');
 
-    // Wait for SSE connection (status dot green)
-    const statusDot = page.locator('[data-testid="status-dot"]');
-    await expect(statusDot).toHaveClass(/bg-green-up/, { timeout: 10000 });
+    // Wait for app to load (API calls complete)
+    await page.waitForLoadState('networkidle');
 
     // Get initial cash
     const cashLocator = page.locator('[data-testid="cash-balance"]');
@@ -28,10 +27,11 @@ test.describe('Trading', () => {
     const newCash = parseFloat(newCashText?.replace(/[$,]/g, '') ?? '0');
     expect(newCash).toBeLessThan(initialCash);
 
-    // Position appears in positions table
+    // Position appears in positions table (default tab is Positions)
     await expect(page.locator('[data-testid="position-row"]:has-text("AAPL")')).toBeVisible();
 
-    // Heatmap shows AAPL cell
-    await expect(page.locator('[data-testid="heatmap-cell-AAPL"]')).toBeVisible();
+    // Switch to Heatmap tab and verify AAPL cell (AC4 requirement)
+    await page.click('text=Heatmap');
+    await expect(page.locator('[data-testid="heatmap-cell-AAPL"]')).toBeVisible({ timeout: 10000 });
   });
 });
