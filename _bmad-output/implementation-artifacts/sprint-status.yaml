@@ -74,4 +74,4 @@ development_status:
   4-1-dockerfile-container-build: done
   4-2-makefile-scripts: done
   4-3-playwright-e2e-tests: done
-  epic-4-retrospective: optional
+  epic-4-retrospective: done
