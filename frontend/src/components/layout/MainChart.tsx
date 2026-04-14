@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { createChart, LineSeries, ColorType } from 'lightweight-charts'
-import type { IChartApi, ISeriesApi, SeriesType } from 'lightweight-charts'
+import type { IChartApi, ISeriesApi, SeriesType, LineData, Time } from 'lightweight-charts'
 import { usePriceStore } from '@/stores/priceStore'
 import type { SparklinePoint } from '@/stores/priceStore'
 
@@ -70,13 +70,13 @@ export default function MainChart() {
     prevTickerRef.current = ticker
 
     if (tickerChanged || points.length === 0) {
-      seriesRef.current.setData(points)
+      seriesRef.current.setData(points as LineData<Time>[])
       chartRef.current?.timeScale().fitContent()
       prevLastTimeRef.current = points.length > 0 ? (points[points.length - 1].time as number) : -1
     } else {
       const lastTime = points.length > 0 ? (points[points.length - 1].time as number) : -1
       if (lastTime > prevLastTimeRef.current) {
-        seriesRef.current.update(points[points.length - 1])
+        seriesRef.current.update(points[points.length - 1] as LineData<Time>)
         prevLastTimeRef.current = lastTime
       }
     }
