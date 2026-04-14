@@ -1,11 +1,17 @@
 """FinAlly FastAPI application entry point."""
 
 import asyncio
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 import aiosqlite
+import litellm
 from fastapi import FastAPI, Request
+
+# Enable LiteLLM debug logging if LITELLM_DEBUG=true
+if os.getenv("LITELLM_DEBUG", "").lower() == "true":
+    litellm._turn_on_debug()
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse

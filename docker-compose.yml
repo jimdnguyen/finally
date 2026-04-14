@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    image: finally
+    container_name: finally
+    ports:
+      - "8000:8000"
+    volumes:
+      - finally-data:/app/db
+    env_file:
+      - .env
+    environment:
+      - DATABASE_PATH=/app/db/finally.db
+    restart: unless-stopped
+
+volumes:
+  finally-data:

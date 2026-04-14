@@ -47,10 +47,17 @@ async def process_chat(
         raw = response.choices[0].message.content
         parsed = json.loads(raw)
         llm_resp = LLMResponse(**parsed)
-    except Exception as exc:
+    except json.JSONDecodeError as exc:
         raise HTTPException(
             status_code=503,
-            detail={"error": "LLM request failed", "code": "LLM_ERROR"},
+            detail={"error": f"LLM returned invalid JSON: {raw[:200]}", "code": "LLM_PARSE_ERROR"},
+        ) from exc
+    except Exception as exc:
+        import logging
+        logging.error(f"LLM error: {type(exc).__name__}: {exc}")
+        raise HTTPException(
+            status_code=503,
+            detail={"error": f"LLM request failed: {type(exc).__name__}", "code": "LLM_ERROR"},
         ) from exc
 
     return await _execute_actions(llm_resp, message, price_cache, conn)
@@ -95,7 +102,8 @@ async def _build_system_prompt(price_cache: PriceCache, conn: aiosqlite.Connecti
         f"- Positions: {'; '.join(pos_parts) or 'none'}\n"
         f"- Watchlist: {', '.join(wl_parts) or 'none'}\n\n"
         "You can execute trades (buy/sell) and manage the watchlist.\n"
-        'Always respond with valid JSON: {"message": "...", "trades": [...], "watchlist_changes": [...]}'
+        "Always respond with valid JSON matching this exact schema:\n"
+        '{"message": "your response", "trades": [{"ticker": "SYMBOL", "side": "buy" or "sell", "quantity": NUMBER}], "watchlist_changes": [{"ticker": "SYMBOL", "action": "add" or "remove"}]}'
     )
 
 

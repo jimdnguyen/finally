@@ -2,13 +2,32 @@
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class TradeRequest(BaseModel):
-    ticker: str
-    side: Literal["buy", "sell"]
+    ticker: str = Field(default="")
+    side: Literal["buy", "sell"] = Field(default="buy")
     quantity: float = Field(gt=0)
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_fields(cls, data: dict) -> dict:
+        """Normalize LLM field variations: symbol->ticker, action->side, case."""
+        if isinstance(data, dict):
+            # symbol -> ticker (uppercase)
+            if "symbol" in data and "ticker" not in data:
+                data["ticker"] = data.pop("symbol").upper()
+            # ticker -> uppercase
+            if "ticker" in data and isinstance(data["ticker"], str):
+                data["ticker"] = data["ticker"].upper()
+            # action -> side (lowercase)
+            if "action" in data and "side" not in data:
+                data["side"] = data.pop("action").lower()
+            # side -> lowercase
+            if "side" in data and isinstance(data["side"], str):
+                data["side"] = data["side"].lower()
+        return data
 
 
 class WatchlistChange(BaseModel):
