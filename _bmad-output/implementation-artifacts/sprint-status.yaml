@@ -70,8 +70,8 @@ development_status:
   epic-3-retrospective: done
 
   # Epic 4: Deployment & Quality
-  epic-4: backlog
-  4-1-dockerfile-container-build: backlog
-  4-2-makefile-scripts: backlog
-  4-3-playwright-e2e-tests: backlog
+  epic-4: in-progress
+  4-1-dockerfile-container-build: done
+  4-2-makefile-scripts: done
+  4-3-playwright-e2e-tests: in-progress
   epic-4-retrospective: optional
