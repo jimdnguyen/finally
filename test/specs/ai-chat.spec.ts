@@ -8,14 +8,14 @@ test.describe('AI Chat', () => {
     const chatInput = page.locator('[data-testid="chat-input"]');
     await expect(chatInput).toBeVisible();
 
-    // Send a message
+    // Start waiting before action to avoid missing fast mock responses
     await chatInput.fill('buy 1 AAPL');
-    await chatInput.press('Enter');
+    const [response] = await Promise.all([
+      page.waitForResponse(resp => resp.url().includes('/api/chat') && resp.status() === 200),
+      chatInput.press('Enter'),
+    ]);
 
-    // Wait for mock response
-    await page.waitForResponse(resp =>
-      resp.url().includes('/api/chat') && resp.status() === 200
-    );
+    expect(response.status()).toBe(200);
 
     // Mock AI response appears in chat log (border-l-2 border-blue-primary indicates AI message)
     await expect(page.locator('.border-l-2.border-blue-primary').last()).toBeVisible();
