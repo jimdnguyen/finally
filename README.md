@@ -9,9 +9,9 @@ Built entirely by coding agents as a capstone project for an agentic AI coding c
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/heatmap.png" width="32%" alt="Portfolio Heatmap" />
-  <img src="docs/screenshots/pnl.png" width="32%" alt="P&amp;L Chart" />
-  <img src="docs/screenshots/positions.png" width="32%" alt="Positions" />
+  <img src="docs/screenshots/heatmap.png" width="100%" alt="Portfolio Heatmap" />
+  <img src="docs/screenshots/pnl.png" width="100%" alt="P&amp;L Chart" />
+  <img src="docs/screenshots/positions.png" width="100%" alt="Positions" />
 </p>
 
 ![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)
