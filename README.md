@@ -4,6 +4,8 @@ A visually stunning AI-powered trading workstation that streams live market data
 
 Built entirely by coding agents as a capstone project for an agentic AI coding course.
 
+![dashboard](docs/screenshots/dashboard.png)
+
 ![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![LiteLLM](https://img.shields.io/badge/LiteLLM-purple)
