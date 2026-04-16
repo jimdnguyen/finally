@@ -4,11 +4,10 @@ test.describe('Watchlist', () => {
   test('add and remove ticker', async ({ page }) => {
     await page.goto('/');
 
-    // Wait for app to initialize
-    await page.waitForLoadState('networkidle');
-
-    // Count initial rows
-    const initialCount = await page.locator('[data-testid="watchlist-row"]').count();
+    // Wait for app to initialize — watchlist rows confirm data loaded
+    const rows = page.locator('[data-testid="watchlist-row"]');
+    await expect(rows.first()).toBeVisible();
+    const initialCount = await rows.count();
 
     // Add PYPL
     const addInput = page.locator('[data-testid="add-ticker-input"]');
@@ -16,7 +15,7 @@ test.describe('Watchlist', () => {
     await addInput.press('Enter');
 
     // Wait for row to appear
-    await expect(page.locator('[data-testid="watchlist-row"]')).toHaveCount(initialCount + 1);
+    await expect(rows).toHaveCount(initialCount + 1);
     const pyplRow = page.locator('[data-testid="watchlist-row"]:has-text("PYPL")');
     await expect(pyplRow).toBeVisible();
 
@@ -24,7 +23,7 @@ test.describe('Watchlist', () => {
     await pyplRow.locator('[data-testid="remove-ticker"]').dispatchEvent('click');
 
     // Verify row disappears
-    await expect(page.locator('[data-testid="watchlist-row"]')).toHaveCount(initialCount);
+    await expect(rows).toHaveCount(initialCount);
     await expect(page.locator('[data-testid="watchlist-row"]:has-text("PYPL")')).not.toBeVisible();
   });
 });

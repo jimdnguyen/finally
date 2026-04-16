@@ -4,11 +4,11 @@ test.describe('AI Chat', () => {
   test('mock response renders with trade execution', async ({ page }) => {
     await page.goto('/');
 
-    // Wait for app to initialize
-    await page.waitForLoadState('networkidle');
+    // Wait for app to initialize — chat input confirms UI is ready
+    const chatInput = page.locator('[data-testid="chat-input"]');
+    await expect(chatInput).toBeVisible();
 
     // Send a message
-    const chatInput = page.locator('[data-testid="chat-input"]');
     await chatInput.fill('buy 1 AAPL');
     await chatInput.press('Enter');
 
