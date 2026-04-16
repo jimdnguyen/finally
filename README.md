@@ -4,7 +4,15 @@ A visually stunning AI-powered trading workstation that streams live market data
 
 Built entirely by coding agents as a capstone project for an agentic AI coding course.
 
-![dashboard](docs/screenshots/dashboard.png)
+<p align="center">
+  <img src="docs/screenshots/demo.gif" width="100%" alt="FinAlly demo" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/heatmap.png" width="32%" alt="Portfolio Heatmap" />
+  <img src="docs/screenshots/pnl.png" width="32%" alt="P&amp;L Chart" />
+  <img src="docs/screenshots/positions.png" width="32%" alt="Positions" />
+</p>
 
 ![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
