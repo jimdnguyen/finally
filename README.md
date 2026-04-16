@@ -8,12 +8,6 @@ Built entirely by coding agents as a capstone project for an agentic AI coding c
   <img src="docs/screenshots/demo.gif" width="100%" alt="FinAlly demo" />
 </p>
 
-<p align="center">
-  <img src="docs/screenshots/heatmap.png" width="100%" alt="Portfolio Heatmap" />
-  <img src="docs/screenshots/pnl.png" width="100%" alt="P&amp;L Chart" />
-  <img src="docs/screenshots/positions.png" width="100%" alt="Positions" />
-</p>
-
 ![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![LiteLLM](https://img.shields.io/badge/LiteLLM-purple)
@@ -93,15 +87,34 @@ CI runs backend tests + ruff linting + a docker build check on every push via Gi
 
 ```
 finally/
-├── frontend/    # Next.js static export
-├── backend/     # FastAPI uv project
-├── planning/    # Project documentation and agent contracts
-├── test/        # Playwright E2E tests + docker-compose.test.yml
-├── db/          # SQLite volume mount (runtime, gitignored)
-├── Makefile     # start / stop / test shortcuts
+├── frontend/               # Next.js (TypeScript) static export
+│   └── src/
+│       ├── components/     # UI components (watchlist, chart, heatmap, chat)
+│       ├── store/          # Zustand state management
+│       └── lib/            # API client, SSE hook, utilities
+├── backend/                # FastAPI uv project (Python)
+│   └── app/
+│       ├── chat/           # LLM integration (LiteLLM → OpenRouter)
+│       ├── market/         # Price simulator + Massive API + SSE stream
+│       ├── portfolio/      # Trade execution, P&L, snapshots
+│       └── watchlist/      # Ticker management
+├── test/                   # Playwright E2E tests
+│   ├── specs/              # Test specs (fresh-start, trading, chat, watchlist)
+│   └── docker-compose.test.yml
+├── docs/screenshots/       # README screenshots and demo GIF
+├── db/                     # SQLite volume mount (runtime, gitignored)
+├── Makefile                # start / stop / test shortcuts
 ├── docker-compose.yml
-└── Dockerfile   # Multi-stage: Node 22 build → Python 3.12 serve
+└── Dockerfile              # Multi-stage: Node 20 build → Python 3.12 serve
 ```
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/heatmap.png" width="100%" alt="Portfolio Heatmap" />
+  <img src="docs/screenshots/pnl.png" width="100%" alt="P&amp;L History" />
+  <img src="docs/screenshots/positions.png" width="100%" alt="Positions Table" />
+</p>
 
 ## License
 
