@@ -25,13 +25,36 @@ Built entirely by coding agents as a capstone project for an agentic AI coding c
 
 ## Architecture
 
-Single Docker container serving everything on port 8000:
+Single Docker container serving everything on port 8000.
 
-- **Frontend**: Next.js (static export) with TypeScript and Tailwind CSS
-- **Backend**: FastAPI (Python/uv) with SSE streaming
-- **Database**: SQLite with lazy initialization (persistent via Docker volume)
-- **AI**: LiteLLM → OpenRouter (free tier) with structured outputs
-- **Market data**: Built-in GBM simulator (default) or Massive API (optional)
+```
+Browser
+  │
+  ├── GET /*           Static Next.js export (served by FastAPI)
+  │
+  ├── EventSource      GET /api/stream/prices  ──► Price cache (in-memory)
+  │     └── Zustand priceStore                        ▲
+  │           ├── WatchlistRow (flash animation)       │
+  │           ├── SparklineChart (mini chart)          │ ~500ms tick
+  │           └── MainChart (candlestick/line)         │
+  │                                             GBM Simulator
+  │                                             (or Massive API)
+  ├── fetch            GET /api/portfolio       ──► SQLite
+  │     └── Zustand portfolioStore              ──► PositionsTable
+  │                                             ──► PortfolioHeatmap
+  │                                             ──► PnLHistoryChart
+  │
+  └── fetch            POST /api/chat           ──► LiteLLM → OpenRouter
+        └── ChatPanel                           ──► Auto-execute trades
+                                                ──► Watchlist changes
+```
+
+- **Frontend**: Next.js static export (TypeScript + Tailwind) — no CORS, single origin
+- **Backend**: FastAPI (Python/uv) — REST + SSE, serves static files
+- **State**: Zustand stores (`priceStore`, `portfolioStore`, `watchlistStore`) — zero-boilerplate
+- **Database**: SQLite (lazy init, Docker volume-mounted for persistence)
+- **AI**: LiteLLM → OpenRouter with structured JSON output; `LLM_MOCK=true` for tests
+- **Market data**: GBM simulator (default) or Massive API — same abstract interface
 
 ## Quick Start
 
@@ -90,6 +113,63 @@ uv run pytest -v
 ```
 
 CI runs backend tests + ruff linting + a docker build check on every push via GitHub Actions (`.github/workflows/test.yml`).
+
+## Troubleshooting
+
+### Port 8000 already in use
+
+```bash
+# Find and kill the process using port 8000
+lsof -ti:8000 | xargs kill -9          # macOS/Linux
+netstat -ano | findstr :8000            # Windows (note the PID, then:)
+taskkill /PID <pid> /F                  # Windows
+```
+
+### Database resets on every restart
+
+The SQLite file is stored in a Docker named volume. If you're using `docker run` directly (not `make`), make sure to include the volume flag:
+
+```bash
+docker run -v finally-data:/app/db -p 8000:8000 --env-file .env finally
+```
+
+If you used `docker compose up`, the volume is managed automatically. Check with:
+
+```bash
+docker volume ls | grep finally
+```
+
+### Prices not streaming / connection indicator red
+
+The SSE stream reconnects automatically, but if it stays red:
+
+1. Check the container is running: `docker ps`
+2. Check backend logs: `make logs` (or `docker logs finally`)
+3. Verify you're opening `http://localhost:8000` — not a different port
+
+### AI chat returns errors
+
+- Confirm `OPENROUTER_API_KEY` is set in your `.env` file
+- The key must have credits on [openrouter.ai](https://openrouter.ai)
+- For local testing without an API key, set `LLM_MOCK=true` in `.env`
+
+### Windows — no `make` command
+
+The `Makefile` shortcuts require `make`, which isn't installed by default on Windows. Use the PowerShell scripts instead:
+
+```powershell
+.\scripts\start_windows.ps1   # build and run
+.\scripts\stop_windows.ps1    # stop and remove container
+docker logs finally            # tail logs
+```
+
+Or run the Docker commands directly:
+
+```powershell
+docker compose up --build -d
+docker compose down
+docker compose logs -f
+```
 
 ## Project Structure
 
