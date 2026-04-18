@@ -55,7 +55,7 @@ test.describe('Network Failures & Timeouts', () => {
     await page.locator('[data-testid="trade-quantity"]').fill('1');
 
     await Promise.all([
-      page.waitForResponse(resp => resp.url().includes('/api/portfolio/trade')),
+      page.waitForResponse(resp => resp.url().includes('/api/portfolio/trade'), { timeout: 8000 }),
       page.locator('[data-testid="buy-button"]').click(),
     ]).catch(() => null);
 
@@ -77,7 +77,7 @@ test.describe('Network Failures & Timeouts', () => {
     await chatInput.fill('buy 10 AAPL');
 
     await Promise.all([
-      page.waitForResponse(resp => resp.url().includes('/api/chat')).catch(() => null),
+      page.waitForResponse(resp => resp.url().includes('/api/chat'), { timeout: 8000 }).catch(() => null),
       chatInput.press('Enter'),
     ]);
 

@@ -113,7 +113,7 @@ function ChatLog({
             )
           case 'exec-fail':
             return (
-              <div key={entry.id} className="text-red-down text-xs pl-2 flex items-center gap-2">
+              <div key={entry.id} role="alert" className="text-red-down text-xs pl-2 flex items-center gap-2">
                 <span>{entry.text}</span>
                 {entry.retryText && (
                   <button

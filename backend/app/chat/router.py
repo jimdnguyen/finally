@@ -1,7 +1,7 @@
 """Chat API route — POST /chat."""
 
-from slowapi import Limiter
 from fastapi import APIRouter, Request
+from slowapi import Limiter
 
 from app.db import get_db
 from app.market import PriceCache
