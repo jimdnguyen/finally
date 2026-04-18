@@ -43,3 +43,19 @@ body {
 }
 
 .animate-blink { animation: blink 1s ease-in-out infinite; }
+
+/* Respect prefers-reduced-motion accessibility setting */
+@media (prefers-reduced-motion: reduce) {
+  .flash-green,
+  .flash-red,
+  .animate-blink {
+    animation: none !important;
+    background-color: transparent !important;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

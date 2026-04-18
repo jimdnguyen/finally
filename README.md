@@ -54,6 +54,14 @@ make stop    # stop and remove container
 make logs    # tail container logs
 ```
 
+## API Documentation
+
+API documentation is available at:
+- **Swagger UI**: `http://localhost:8000/docs`
+- **ReDoc**: `http://localhost:8000/redoc`
+
+These endpoints are live while the backend is running and provide interactive API exploration.
+
 ## Environment Variables
 
 | Variable | Required | Description |

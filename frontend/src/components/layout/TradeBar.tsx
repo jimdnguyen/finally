@@ -46,15 +46,20 @@ export default function TradeBar() {
   return (
     <div className="border-t border-b border-border px-3 py-2">
       <div className="flex items-center gap-3">
+        <label htmlFor="trade-ticker" className="sr-only">Ticker Symbol</label>
         <input
+          id="trade-ticker"
           data-testid="trade-ticker"
           type="text"
           value={ticker}
           onChange={(e) => setTicker(e.target.value.toUpperCase())}
           placeholder="AAPL"
+          aria-label="Stock ticker symbol"
           className="w-24 border-0 border-b border-border bg-transparent font-mono text-sm outline-none focus:border-b-blue-primary"
         />
+        <label htmlFor="trade-quantity" className="sr-only">Quantity</label>
         <input
+          id="trade-quantity"
           data-testid="trade-quantity"
           type="number"
           value={quantity}
@@ -62,12 +67,14 @@ export default function TradeBar() {
           onKeyDown={handleKeyDown}
           placeholder="100"
           min="1"
+          aria-label="Number of shares to trade"
           className="w-20 border-0 border-b border-border bg-transparent font-mono text-sm outline-none focus:border-b-blue-primary"
         />
         <button
           data-testid="buy-button"
           onClick={() => handleTrade('buy')}
           disabled={isSubmitting}
+          aria-label={`Buy ${quantity || '0'} shares of ${ticker}`}
           className="bg-purple-action text-white uppercase text-xs font-semibold font-sans tracking-wide px-4 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Buy
@@ -76,13 +83,14 @@ export default function TradeBar() {
           data-testid="sell-button"
           onClick={() => handleTrade('sell')}
           disabled={isSubmitting}
+          aria-label={`Sell ${quantity || '0'} shares of ${ticker}`}
           className="bg-purple-action text-white uppercase text-xs font-semibold font-sans tracking-wide px-4 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Sell
         </button>
       </div>
       {error && (
-        <p className="text-red-down text-xs mt-1">{error}</p>
+        <p className="text-red-down text-xs mt-1" role="alert">{error}</p>
       )}
     </div>
   )

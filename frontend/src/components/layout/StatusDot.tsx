@@ -28,11 +28,12 @@ export default function StatusDot() {
   const config = STATUS_CONFIG[connectionStatus]
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1.5" role="status" aria-label={`Connection status: ${config.label}`} aria-live="polite">
       <span
         data-testid="status-dot"
         className={`inline-block w-2 h-2 rounded-full ${config.dotClass}`}
         style={config.dotStyle}
+        aria-hidden="true"
       />
       <span className={`text-xs font-mono ${config.textClass}`}>{config.label}</span>
     </div>

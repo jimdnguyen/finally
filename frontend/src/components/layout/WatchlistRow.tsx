@@ -63,7 +63,16 @@ export default function WatchlistRow({ ticker }: WatchlistRowProps) {
       ref={rowRef}
       data-testid="watchlist-row"
       onClick={() => usePriceStore.getState().selectTicker(ticker)}
-      className={`group grid grid-cols-[2.5rem_1fr_auto] items-center gap-x-2 px-2 py-1.5 border-b border-b-border cursor-pointer hover:bg-surface border-l-2 ${
+      role="button"
+      tabIndex={0}
+      aria-label={`${ticker} at $${price?.price.toFixed(2) || '—'}, ${change ? change.text : '—'}`}
+      aria-selected={isActive}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          usePriceStore.getState().selectTicker(ticker)
+        }
+      }}
+      className={`group grid grid-cols-[2.5rem_1fr_auto] items-center gap-x-2 px-2 py-1.5 border-b border-b-border cursor-pointer hover:bg-surface border-l-2 focus:outline-none focus:ring-2 focus:ring-blue-primary ${
         isActive ? 'border-l-blue-primary' : 'border-l-transparent'
       }`}
     >
@@ -71,7 +80,7 @@ export default function WatchlistRow({ ticker }: WatchlistRowProps) {
       <div className="flex justify-center">
         <SparklineChart points={points} width={44} />
       </div>
-      <div className="flex flex-col items-end">
+      <div className="flex flex-col items-end" role="status" aria-live="polite">
         <span className="font-mono text-xs text-text-primary">
           {price ? `$${price.price.toFixed(2)}` : '—'}
         </span>
@@ -92,7 +101,7 @@ export default function WatchlistRow({ ticker }: WatchlistRowProps) {
         onClick={handleRemove}
         disabled={isRemoving}
         className="hidden group-hover:block col-start-3 text-red-down text-xs font-semibold hover:text-red-600 disabled:opacity-40"
-        aria-label={`Remove ${ticker}`}
+        aria-label={`Remove ${ticker} from watchlist`}
       >
         ×
       </button>

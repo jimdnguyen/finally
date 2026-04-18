@@ -8,6 +8,9 @@ from pathlib import Path
 import aiosqlite
 import litellm
 from fastapi import FastAPI, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 # Enable LiteLLM debug logging if LITELLM_DEBUG=true
 if os.getenv("LITELLM_DEBUG", "").lower() == "true":
@@ -58,9 +61,21 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     app = FastAPI(title="FinAlly", lifespan=lifespan)
 
+    limiter = Limiter(key_func=get_remote_address)
+    app.state.limiter = limiter
+
+    @app.exception_handler(RateLimitExceeded)
+    async def rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+        """Handle rate limit exceeded."""
+        return JSONResponse(
+            status_code=429,
+            content={"error": "Rate limit exceeded", "code": "RATE_LIMITED"},
+        )
+
+    allowed_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:3000", "http://localhost:3001"],
+        allow_origins=allowed_origins,
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -78,7 +93,7 @@ def create_app() -> FastAPI:
     app.include_router(health_router, prefix="/api")
     app.include_router(create_watchlist_router(price_cache, market_source), prefix="/api")
     app.include_router(create_portfolio_router(price_cache), prefix="/api")
-    app.include_router(create_chat_router(price_cache), prefix="/api")
+    app.include_router(create_chat_router(price_cache, limiter), prefix="/api")
     app.include_router(create_stream_router(price_cache))
 
     if STATIC_DIR.exists():

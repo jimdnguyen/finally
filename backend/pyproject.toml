@@ -12,6 +12,7 @@ dependencies = [
     "rich>=13.0.0",
     "aiosqlite>=0.22.1",
     "litellm>=1.83.4",
+    "slowapi>=0.1.9",
 ]
 
 [project.optional-dependencies]

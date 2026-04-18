@@ -158,8 +158,10 @@ function ChatInput({
 
   return (
     <div className="flex items-center gap-2 border-t border-border p-2">
-      <span className="text-text-muted font-mono text-sm flex-shrink-0">{'>'}</span>
+      <label htmlFor="chat-message-input" className="sr-only">Chat message input</label>
+      <span className="text-text-muted font-mono text-sm flex-shrink-0" aria-hidden="true">{'>'}</span>
       <input
+        id="chat-message-input"
         data-testid="chat-input"
         type="text"
         value={value}
@@ -168,11 +170,12 @@ function ChatInput({
         disabled={disabled}
         placeholder="buy 10 AAPL · analyze portfolio"
         className="flex-1 bg-transparent border-0 border-b border-border font-mono text-sm text-text-primary placeholder:text-text-muted focus:border-blue-primary focus:outline-none disabled:opacity-50"
-        aria-label="Chat message"
+        aria-label="Chat message input"
       />
       <button
         onClick={handleSubmit}
         disabled={disabled}
+        aria-label={disabled ? 'Sending message...' : 'Send message'}
         className="bg-purple-action text-white uppercase text-xs px-3 py-1 rounded-none disabled:opacity-50 flex-shrink-0"
       >
         SEND

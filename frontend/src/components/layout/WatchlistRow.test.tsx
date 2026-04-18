@@ -107,7 +107,7 @@ describe('WatchlistRow', () => {
 
   it('renders × remove button with aria-label', () => {
     render(<WatchlistRow ticker="AAPL" />)
-    const btn = screen.getByRole('button', { name: 'Remove AAPL' })
+    const btn = screen.getByRole('button', { name: 'Remove AAPL from watchlist' })
     expect(btn).toBeTruthy()
     expect(btn.textContent).toBe('×')
   })
@@ -118,7 +118,7 @@ describe('WatchlistRow', () => {
     useWatchlistStore.setState({ tickers: ['AAPL', 'GOOGL'] })
 
     render(<WatchlistRow ticker="AAPL" />)
-    const btn = screen.getByRole('button', { name: 'Remove AAPL' })
+    const btn = screen.getByRole('button', { name: 'Remove AAPL from watchlist' })
     fireEvent.click(btn)
 
     await waitFor(() => {
@@ -134,7 +134,7 @@ describe('WatchlistRow', () => {
     usePriceStore.setState({ selectedTicker: 'GOOGL' })
 
     render(<WatchlistRow ticker="AAPL" />)
-    const btn = screen.getByRole('button', { name: 'Remove AAPL' })
+    const btn = screen.getByRole('button', { name: 'Remove AAPL from watchlist' })
     fireEvent.click(btn)
 
     await waitFor(() => {
