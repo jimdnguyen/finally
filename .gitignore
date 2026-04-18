@@ -229,6 +229,10 @@ learnings/
 test/screenshots/
 test/test-results/
 test/node_modules/
+test/package-lock.json
+test/video/
+test/pm-capture.js
+test/specs/record.spec.ts
 test-results/
 frontend/test-results/
 package-lock.json/package-lock.json
