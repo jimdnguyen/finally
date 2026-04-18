@@ -94,3 +94,17 @@ async def init_db() -> None:
                 )
 
         await conn.commit()
+
+
+async def reset_db() -> None:
+    """Reset database to initial seed state (test use only)."""
+    async with aiosqlite.connect(config.DB_PATH) as conn:
+        await conn.execute("DELETE FROM positions")
+        await conn.execute("DELETE FROM trades")
+        await conn.execute("DELETE FROM chat_messages")
+        await conn.execute("DELETE FROM portfolio_snapshots")
+        await conn.execute(
+            "UPDATE users_profile SET cash_balance = ? WHERE id = ?",
+            (DEFAULT_CASH, DEFAULT_USER_ID),
+        )
+        await conn.commit()

@@ -1,0 +1,19 @@
+# Exclude local dev env — NEXT_PUBLIC_BACKEND_URL must be empty (same-origin) in Docker
+frontend/.env.local
+frontend/.env.*.local
+
+# Runtime artifacts
+frontend/node_modules
+frontend/.next
+frontend/out
+
+# Test infrastructure
+test/node_modules
+test/test-results
+test/screenshots
+
+# Database (volume-mounted at runtime)
+db/*.db
+
+# Git
+.git

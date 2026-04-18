@@ -5,16 +5,21 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 from collections.abc import AsyncGenerator
 
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
+from app.db.init import reset_db
 from .cache import PriceCache
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/stream", tags=["streaming"])
+
+# Set by the test endpoint to force-close all active SSE generators
+_sse_disconnect = asyncio.Event()
 
 
 def create_stream_router(price_cache: PriceCache) -> APIRouter:
@@ -22,6 +27,22 @@ def create_stream_router(price_cache: PriceCache) -> APIRouter:
 
     This factory pattern lets us inject the PriceCache without globals.
     """
+
+    if os.getenv("LLM_MOCK", "").lower() == "true":
+
+        @router.get("/test-drop")
+        async def test_drop_sse() -> dict:
+            """Force-close all active SSE connections (test mode only)."""
+            _sse_disconnect.set()
+            await asyncio.sleep(0.1)  # Give generators time to see the event
+            _sse_disconnect.clear()
+            return {"dropped": True}
+
+        @router.get("/test-reset")
+        async def test_reset_db() -> dict:
+            """Reset database to seed state (test mode only)."""
+            await reset_db()
+            return {"reset": True}
 
     @router.get("/prices")
     async def stream_prices(request: Request) -> StreamingResponse:
@@ -67,11 +88,6 @@ async def _generate_events(
 
     try:
         while True:
-            # Check for client disconnect
-            if await request.is_disconnected():
-                logger.info("SSE client disconnected: %s", client_ip)
-                break
-
             current_version = price_cache.version
             if current_version != last_version:
                 last_version = current_version
@@ -82,6 +98,11 @@ async def _generate_events(
                     payload = json.dumps(data)
                     yield f"data: {payload}\n\n"
 
-            await asyncio.sleep(interval)
+            # Sleep for interval, but wake early if test disconnect is triggered
+            try:
+                await asyncio.wait_for(_sse_disconnect.wait(), timeout=interval)
+                return  # Test-triggered disconnect
+            except asyncio.TimeoutError:
+                pass  # Normal — continue loop
     except asyncio.CancelledError:
         logger.info("SSE stream cancelled for: %s", client_ip)

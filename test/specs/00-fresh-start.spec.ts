@@ -5,7 +5,8 @@ test.describe('Fresh Start', () => {
     await page.goto('/');
 
     // Wait for app to initialize — watchlist rows confirm data loaded
-    const watchlistRows = page.locator('[data-testid="watchlist-row"]');
+    // Scope to first <main> (desktop layout) — page renders 3 responsive layouts simultaneously
+    const watchlistRows = page.locator('main').first().locator('[data-testid="watchlist-row"]');
     await expect(watchlistRows.first()).toBeVisible();
 
     // 10 default tickers visible
