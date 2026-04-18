@@ -231,4 +231,4 @@ test/test-results/
 test/node_modules/
 test-results/
 frontend/test-results/
-package-lock.json
+package-lock.json/package-lock.json
