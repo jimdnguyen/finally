@@ -12,6 +12,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
 from app.db.init import reset_db
+
 from .cache import PriceCache
 
 logger = logging.getLogger(__name__)
