@@ -24,4 +24,6 @@ RUN mkdir -p /app/db
 # Set database path for volume persistence
 ENV DATABASE_PATH=/app/db/finally.db
 EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8000/api/health || exit 1
 CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

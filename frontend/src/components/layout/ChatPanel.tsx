@@ -72,7 +72,8 @@ function ChatLog({
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView?.({ behavior: 'smooth' })
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    bottomRef.current?.scrollIntoView?.({ behavior: prefersReducedMotion ? 'auto' : 'smooth' })
   }, [entries.length])
 
   return (

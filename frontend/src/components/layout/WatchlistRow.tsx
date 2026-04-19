@@ -29,6 +29,9 @@ export default function WatchlistRow({ ticker }: WatchlistRowProps) {
 
   useEffect(() => {
     if (!price || !rowRef.current) return
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
     const el = rowRef.current
     el.classList.remove('flash-green', 'flash-red')
     void el.offsetWidth
