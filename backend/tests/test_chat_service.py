@@ -1,5 +1,6 @@
-"""Unit tests for chat service — 8 core scenarios."""
+"""Unit tests for chat service — 13 core scenarios."""
 
+import asyncio
 import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -196,6 +197,53 @@ async def test_chat_llm_failure(conn, price_cache, monkeypatch):
     assert exc_info.value.status_code == 503
     assert exc_info.value.detail["code"] == "LLM_ERROR"
     assert exc_info.value.detail["error"] == "LLM request failed"
+
+
+# ─── 11. LLM timeout → 503 LLM_TIMEOUT ──────────────────────────────────────
+
+async def test_chat_llm_timeout(conn, price_cache, monkeypatch):
+    monkeypatch.delenv("LLM_MOCK", raising=False)
+    with patch("app.chat.service.asyncio.wait_for", side_effect=asyncio.TimeoutError):
+        with pytest.raises(HTTPException) as exc_info:
+            await process_chat("Hello", price_cache, conn)
+
+    assert exc_info.value.status_code == 503
+    assert exc_info.value.detail["code"] == "LLM_TIMEOUT"
+
+
+# ─── 12. _extract_json — handles plain JSON, prose-wrapped JSON, and garbage ──
+
+def test_extract_json_plain():
+    from app.chat.service import _extract_json
+    result = _extract_json('{"message": "hi", "trades": []}')
+    assert result["message"] == "hi"
+
+
+def test_extract_json_prose_wrapped():
+    from app.chat.service import _extract_json
+    prose = 'Sure, here you go: {"message": "done", "trades": []} Hope that helps!'
+    result = _extract_json(prose)
+    assert result["message"] == "done"
+
+
+def test_extract_json_no_json_raises():
+    from app.chat.service import _extract_json
+    with pytest.raises(ValueError):
+        _extract_json("There is no JSON here at all.")
+
+
+# ─── 13. Non-JSON LLM response → fallback shows warning, executes no trades ───
+
+async def test_chat_non_json_fallback(conn, price_cache, monkeypatch):
+    monkeypatch.delenv("LLM_MOCK", raising=False)
+    resp = MagicMock()
+    resp.choices[0].message.content = "Proceeding to sell 10 AAPL shares."
+    with patch("app.chat.service.litellm.acompletion", new_callable=AsyncMock, return_value=resp):
+        result = await process_chat("Sell AAPL", price_cache, conn)
+
+    assert "⚠️" in result.message
+    assert len(result.trades_executed) == 0
+    assert len(result.watchlist_changes_applied) == 0
 
 
 # ─── 10. Missing API key → 503 LLM_ERROR (AC4) ───────────────────────────────

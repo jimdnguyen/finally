@@ -81,6 +81,23 @@ async def test_chat_mock_mode_endpoint(client, monkeypatch):
     assert isinstance(data["trades_executed"], list)
 
 
+async def test_clear_history(client, monkeypatch):
+    """DELETE /api/chat/history returns 204 and wipes stored messages."""
+    monkeypatch.setenv("LLM_MOCK", "true")
+    await client.post("/api/chat", json={"message": "Hello"})
+
+    response = await client.delete("/api/chat/history")
+    assert response.status_code == 204
+
+    # After clearing, a new chat message should be saved as message #1 (no prior history)
+    from app.db import init_db
+    from app.db.connection import get_db
+    async with get_db() as conn:
+        cursor = await conn.execute("SELECT COUNT(*) FROM chat_messages WHERE user_id = 'default'")
+        count = (await cursor.fetchone())[0]
+    assert count == 0
+
+
 async def test_chat_503_from_router(client, monkeypatch):
     """LLM failure propagates as HTTP 503 with LLM_ERROR code (AC1)."""
     monkeypatch.delenv("LLM_MOCK", raising=False)
