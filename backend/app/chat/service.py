@@ -1,7 +1,10 @@
 """Chat service — LLM integration with portfolio context and action execution."""
 
+import asyncio
 import json
+import logging
 import os
+import re
 import uuid
 from datetime import datetime, timezone
 
@@ -15,6 +18,18 @@ from app.portfolio.service import execute_trade
 from .db import load_history, save_message
 from .mock import MOCK_RESPONSE
 from .models import ChatResponse, LLMResponse
+
+
+def _extract_json(text: str) -> dict:
+    """Extract the first JSON object from text; raises ValueError if none found."""
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    raise ValueError(f"No valid JSON object found in: {text[:200]}")
 
 
 async def process_chat(
@@ -38,22 +53,31 @@ async def process_chat(
     messages.append({"role": "user", "content": message})
 
     # AC2: call LiteLLM — ARCH-22: model string HARDCODED
+    # Note: no response_format — reasoning models (nemotron, deepseek-r1) emit a
+    # skeleton JSON in content when response_format is set; prompt-only + regex
+    # extraction works reliably across the free-tier model pool.
+    # asyncio.wait_for is used instead of litellm timeout= to ensure the underlying
+    # httpx connection is properly cancelled (not left running in the background).
+    raw = ""
     try:
-        response = await litellm.acompletion(
-            model="openrouter/openrouter/free",
-            messages=messages,
-            response_format={"type": "json_object"},
+        response = await asyncio.wait_for(
+            litellm.acompletion(model="openrouter/openrouter/free", messages=messages),
+            timeout=30,
         )
-        raw = response.choices[0].message.content
-        parsed = json.loads(raw)
+        raw = response.choices[0].message.content or ""
+        parsed = _extract_json(raw)
         llm_resp = LLMResponse(**parsed)
-    except json.JSONDecodeError as exc:
+    except asyncio.TimeoutError:
+        logging.warning("LLM request timed out after 30s")
         raise HTTPException(
             status_code=503,
-            detail={"error": f"LLM returned invalid JSON: {raw[:200]}", "code": "LLM_PARSE_ERROR"},
-        ) from exc
+            detail={"error": "LLM request timed out", "code": "LLM_TIMEOUT"},
+        )
+    except (json.JSONDecodeError, ValueError):
+        logging.warning(f"LLM parse error — using raw text as message: {raw[:200]}")
+        note = "\n\n⚠️ The AI response was not in the expected format — no trades or watchlist changes were executed. Please try rephrasing your request."
+        llm_resp = LLMResponse(message=raw + note, trades=[], watchlist_changes=[])
     except Exception as exc:
-        import logging
         logging.error(f"LLM error: {type(exc).__name__}: {exc}")
         raise HTTPException(
             status_code=503,
@@ -120,7 +144,7 @@ async def _execute_actions(
         price = price_cache.get_price(trade.ticker)
         if price is None:
             trade_results.append(
-                {"ticker": trade.ticker, "status": "error", "error": "Price unavailable"}
+                {"ticker": trade.ticker, "side": trade.side, "quantity": trade.quantity, "status": "error", "error": "Price unavailable"}
             )
             continue
         try:
@@ -131,11 +155,11 @@ async def _execute_actions(
         except HTTPException as e:
             detail = e.detail if isinstance(e.detail, dict) else {"error": str(e.detail)}
             trade_results.append(
-                {"ticker": trade.ticker, "status": "error", "error": detail.get("error", str(e.detail))}
+                {"ticker": trade.ticker, "side": trade.side, "quantity": trade.quantity, "status": "error", "error": detail.get("error", str(e.detail))}
             )
         except Exception as e:
             trade_results.append(
-                {"ticker": trade.ticker, "status": "error", "error": str(e)}
+                {"ticker": trade.ticker, "side": trade.side, "quantity": trade.quantity, "status": "error", "error": str(e)}
             )
 
     # AC5: execute watchlist changes
@@ -150,17 +174,17 @@ async def _execute_actions(
                     (str(uuid.uuid4()), ticker_upper, now),
                 )
                 await conn.commit()
-                watchlist_results.append({"ticker": ticker_upper, "status": "ok"})
+                watchlist_results.append({"ticker": ticker_upper, "action": "add", "status": "ok"})
             except aiosqlite.IntegrityError:
-                watchlist_results.append({"ticker": ticker_upper, "status": "already_exists"})
+                watchlist_results.append({"ticker": ticker_upper, "action": "add", "status": "already_exists"})
         elif change.action == "remove":
             cursor = await conn.execute(
                 "DELETE FROM watchlist WHERE user_id = 'default' AND ticker = ?",
                 (ticker_upper,),
             )
             await conn.commit()
-            status = "removed" if cursor.rowcount > 0 else "not_found"
-            watchlist_results.append({"ticker": ticker_upper, "status": status})
+            status = "ok" if cursor.rowcount > 0 else "not_found"
+            watchlist_results.append({"ticker": ticker_upper, "action": "remove", "status": status})
 
     # AC4: persist messages
     await save_message(conn, "user", user_message)

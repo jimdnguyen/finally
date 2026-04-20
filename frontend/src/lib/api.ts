@@ -54,10 +54,17 @@ export function removeFromWatchlist(ticker: string): Promise<void> {
   })
 }
 
+export function clearChatHistory(): Promise<void> {
+  return apiFetch<void>('/api/chat/history', { method: 'DELETE' })
+}
+
 export function sendChatMessage(message: string): Promise<ChatResponse> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 35_000)
   return apiFetch<ChatResponse>('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message }),
-  })
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeoutId))
 }

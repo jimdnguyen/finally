@@ -72,7 +72,7 @@ def create_app() -> FastAPI:
             content={"error": "Rate limit exceeded", "code": "RATE_LIMITED"},
         )
 
-    allowed_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    allowed_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8001").split(",")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,

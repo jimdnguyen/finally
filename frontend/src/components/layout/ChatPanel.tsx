@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { sendChatMessage } from '@/lib/api'
+import { clearChatHistory, sendChatMessage } from '@/lib/api'
 import { usePortfolioStore } from '@/stores/portfolioStore'
+import { useWatchlistStore } from '@/stores/watchlistStore'
 import type { ChatResponse } from '@/types'
 
 // ---------------------------------------------------------------------------
@@ -193,15 +194,22 @@ const GREETING_LABEL_ID = 'greeting-label'
 const GREETING_AI_ID = 'greeting-ai'
 
 function ChatPanelInner() {
-  const [entries, setEntries] = useState<LogEntry[]>([
+  const initialEntries: LogEntry[] = [
     { type: 'ai-label', timestamp: now(), id: GREETING_LABEL_ID },
     {
       type: 'ai',
       text: 'Hi! I\'m FinAlly, your AI trading assistant. Ask me to analyze your portfolio, suggest trades, or just buy 10 AAPL.',
       id: GREETING_AI_ID,
     },
-  ])
+  ]
+  const [entries, setEntries] = useState<LogEntry[]>(initialEntries)
   const [pending, setPending] = useState(false)
+
+  async function handleClearHistory() {
+    await clearChatHistory().catch(() => {})
+    setEntries(initialEntries)
+  }
+
 
   async function handleSubmit(text: string) {
     const userEntry: LogEntry = { type: 'user', text, id: uid() }
@@ -225,8 +233,15 @@ function ChatPanelInner() {
       if (response.trades_executed.some((t) => t.status === 'executed')) {
         usePortfolioStore.getState().refresh().catch(() => {})
       }
+      for (const w of response.watchlist_changes_applied) {
+        if (w.status === 'ok') {
+          if (w.action === 'add') useWatchlistStore.getState().addTicker(w.ticker)
+          else useWatchlistStore.getState().removeTicker(w.ticker)
+        }
+      }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error'
+      const isTimeout = err instanceof DOMException && err.name === 'AbortError'
+      const message = isTimeout ? 'Request timed out — the AI is slow, please retry' : (err instanceof Error ? err.message : 'Unknown error')
       setEntries((prev) =>
         prev
           .map((e) => (e.id === loadingLabelId ? { ...e, loading: false } : e))
@@ -239,7 +254,21 @@ function ChatPanelInner() {
 
   return (
     <aside className="bg-surface border-l border-border flex flex-col h-full">
+      <div className="flex items-center justify-between px-3 py-1 border-b border-border">
+        <span className="font-mono text-xs text-text-muted uppercase tracking-wide">AI Chat</span>
+        <button
+          onClick={handleClearHistory}
+          disabled={pending}
+          className="font-mono text-[10px] text-text-muted hover:text-red-down disabled:opacity-50"
+          title="Clear chat history"
+        >
+          Clear history
+        </button>
+      </div>
       <ChatLog entries={entries} onRetry={handleSubmit} />
+      <p className="px-3 py-1 text-center font-mono text-[10px] text-text-muted">
+        AI-generated · simulated trading only · not financial advice
+      </p>
       <ChatInput onSubmit={handleSubmit} disabled={pending} />
     </aside>
   )

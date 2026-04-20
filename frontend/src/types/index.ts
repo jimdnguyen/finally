@@ -53,7 +53,7 @@ export interface TradeExecuted {
 export interface WatchlistChangeApplied {
   ticker: string
   action: 'add' | 'remove'
-  status: 'ok' | 'error'
+  status: 'ok' | 'already_exists' | 'not_found' | 'error'
   error?: string
 }
 

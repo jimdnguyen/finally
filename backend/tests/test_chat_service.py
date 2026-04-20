@@ -135,7 +135,7 @@ async def test_chat_watchlist_remove(conn, price_cache, monkeypatch):
                return_value=_mock_llm(payload)):
         result = await process_chat("Remove AAPL", price_cache, conn)
 
-    assert result.watchlist_changes_applied[0]["status"] == "removed"
+    assert result.watchlist_changes_applied[0]["status"] == "ok"
     cursor = await conn.execute("SELECT ticker FROM watchlist WHERE ticker = 'AAPL'")
     assert await cursor.fetchone() is None
 

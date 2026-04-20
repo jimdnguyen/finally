@@ -164,11 +164,11 @@ describe('sendChatMessage', () => {
 
     const result = await sendChatMessage('buy 5 AAPL')
     expect(result).toEqual(mockChatResponse)
-    expect(fetch).toHaveBeenCalledWith('/api/chat', {
+    expect(fetch).toHaveBeenCalledWith('/api/chat', expect.objectContaining({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: 'buy 5 AAPL' }),
-    })
+    }))
   })
 
   it('throws ApiError on 502 LLM failure', async () => {
