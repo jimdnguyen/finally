@@ -90,7 +90,6 @@ async def test_clear_history(client, monkeypatch):
     assert response.status_code == 204
 
     # After clearing, a new chat message should be saved as message #1 (no prior history)
-    from app.db import init_db
     from app.db.connection import get_db
     async with get_db() as conn:
         cursor = await conn.execute("SELECT COUNT(*) FROM chat_messages WHERE user_id = 'default'")
