@@ -23,6 +23,9 @@ COPY --from=frontend-builder /app/frontend/out ./static/
 RUN mkdir -p /app/db
 # Set database path for volume persistence
 ENV DATABASE_PATH=/app/db/finally.db
+RUN chown -R 1000:1000 /app
+USER 1000
+
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:8000/api/health || exit 1
